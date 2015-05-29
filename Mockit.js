@@ -86,14 +86,14 @@ window.MockitJs = new function(){
 	};
 
 	/**
-	 * @method stop
+	 * @method load
 	 * Evoca um open file dialog do sistema para que o usuário
 	 * entregue ao MockitJs um arquivo com mock salvo
 	 *
-	 * @param {function} callback
+	 * @param {Function} callback
 	 * Função executada quando o arquivo já foi enviado e o mock
 	 * setado
-	 * 	@param {Boolean|Error} hasError
+	 * 	@param {Boolean|Error} callback.hasError
 	 * 	Retorna um objeto de erro caso não tenha sido possível ler
 	 * 	o arquivo, caso contrário retorna false
 	 */
@@ -168,6 +168,15 @@ window.MockitJs = new function(){
  * propriedade o nome do parâmetro get de remoção de cache
  */
 MockitJs.cacheVarName = '';
+
+/**
+ * @property
+ * @type {Boolean}
+ *
+ * Força toda a aplicação trabalhar de forma sincrona (pelo menos
+ * ao que se refere a requisições http)
+ */
+MockitJs.syncronizeApp = false;
 
 /**
  * @class MockitJs.IO
@@ -525,7 +534,7 @@ MockitJs.mockReader = function XMLHttpRequest(){
 	};
 
 	me.send = function(params){
-		if (async) {
+		if (async && !MockitJs.syncronizeApp) {
 			setTimeout(function(){
 				simularIO(params);
 			}, 0);
