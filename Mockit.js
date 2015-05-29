@@ -97,7 +97,7 @@ window.MockitJs = new function(){
 	 * 	Retorna um objeto de erro caso não tenha sido possível ler
 	 * 	o arquivo, caso contrário retorna false
 	 */
-	me.load = function(calle){
+	me.loadFromDialog = function(calle){
 		setTimeout(function(){
 			var i = document.createElement('input');
 			i.setAttribute('type', 'file');

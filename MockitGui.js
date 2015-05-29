@@ -118,7 +118,7 @@ MockitJs.Gui = new function(){
 
 	var loadClick = function(){
 		if (!MockitJs.IO.hasFile() || MockitJs.IO.hasFile() && confirm('Existe um arquivo de mock aberto, abrir outro irá descartá-lo!')) {
-			MockitJs.load(function(e){
+			MockitJs.loadFromDialog(function(e){
 				if (e)
 					alert(e.stack);
 			});
