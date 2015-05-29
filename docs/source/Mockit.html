@@ -16,7 +16,7 @@
 </head>
 <body onload="prettyPrint(); highlight();">
   <pre class="prettyprint lang-js"><span id='MockitJs'>/**
-</span> * @author Ricardo Azzi Silva &lt;ricardo.azzi@viavarejo.com.br&gt;
+</span> * @author Ricardo Azzi Silva &lt;ricardoazzi91@hotmail.com&gt;
  * @class MockitJs
  * @singleton
  *
@@ -102,15 +102,15 @@ window.MockitJs = new function(){
 		window.XMLHttpRequest = MockitJs.XMLHttpRequest;
 	};
 
-<span id='MockitJs-method-stop'>	/**
-</span>	 * @method stop
+<span id='MockitJs-method-load'>	/**
+</span>	 * @method load
 	 * Evoca um open file dialog do sistema para que o usuário
 	 * entregue ao MockitJs um arquivo com mock salvo
 	 *
-	 * @param {function} callback
+	 * @param {Function} callback
 	 * Função executada quando o arquivo já foi enviado e o mock
 	 * setado
-	 * 	@param {Boolean|Error} hasError
+	 * 	@param {Boolean|Error} callback.hasError
 	 * 	Retorna um objeto de erro caso não tenha sido possível ler
 	 * 	o arquivo, caso contrário retorna false
 	 */
@@ -185,6 +185,15 @@ window.MockitJs = new function(){
  * propriedade o nome do parâmetro get de remoção de cache
  */
 MockitJs.cacheVarName = '';
+
+<span id='MockitJs-property-syncronizeApp'>/**
+</span> * @property
+ * @type {Boolean}
+ *
+ * Força toda a aplicação trabalhar de forma sincrona (pelo menos
+ * ao que se refere a requisições http)
+ */
+MockitJs.syncronizeApp = false;
 
 <span id='MockitJs-IO'>/**
 </span> * @class MockitJs.IO
@@ -542,7 +551,7 @@ MockitJs.mockReader = function XMLHttpRequest(){
 	};
 
 	me.send = function(params){
-		if (async) {
+		if (async &amp;&amp; !MockitJs.syncronizeApp) {
 			setTimeout(function(){
 				simularIO(params);
 			}, 0);

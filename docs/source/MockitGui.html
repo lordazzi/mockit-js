@@ -16,7 +16,7 @@
 </head>
 <body onload="prettyPrint(); highlight();">
   <pre class="prettyprint lang-js"><span id='MockitJs-Gui'>/**
-</span> * @author Ricardo Azzi Silva &lt;ricardo.azzi@viavarejo.com.br&gt;
+</span> * @author Ricardo Azzi Silva &lt;ricardoazzi91@hotmail.com&gt;
  * @class MockitJs.Gui
  * @singleton
  *
@@ -87,8 +87,12 @@ MockitJs.Gui = new function(){
 	};
 
 	var recordClick = function(){
-		recordButton.removeAttribute('class');
+		if (!recording &amp;&amp; playing) {
+			alert('Impossível começar gravar http enquanto se está rodando um mock!');
+			return;
+		}
 
+		recordButton.removeAttribute('class');
 		if (recording) {
 			MockitJs.stopRecording();
 			recordButton.setAttribute('class', 'start-record');
@@ -140,11 +144,11 @@ MockitJs.Gui = new function(){
 	};
 
 	var closeClick = function(){
-		if (!MockitJs.IO.hasFile() || MockitJs.IO.hasFile() &amp;&amp; confirm('Tem certeza que deseja fechar? As alterações do arquivo de mock aberto serão perdidas.')) {
+		if (!MockitJs.IO.hasFile() || MockitJs.IO.hasFile()) {
 			MockitJs.playHttp();
 			root.remove();
 
-			if (confirm('MockitJS Gui será fechado, deseja fechar o arquivo de mock aberto também?')) {
+			if (confirm('Deseja fechar o arquivo de mock aberto também?')) {
 				MockitJs.clear();
 			}
 		}
