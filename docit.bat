@@ -1,0 +1,3 @@
+jsduck . --output docs
+
+pause
