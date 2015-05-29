@@ -86,7 +86,39 @@ window.MockitJs = new function(){
 	};
 
 	/**
-	 * @method load
+	 * @method loadFromHttp
+	 * Faz a chamada de uma requisição http para abrir o arquivo de mock,
+	 * este método é utilizado para quando o mock precisa ser lido para o
+	 * uso deles nos testes
+	 *
+	 * @param {String} path
+	 * Localização do arquivo de mock
+	 * 
+	 * @param {Function} callback
+	 * Função executada quando o arquivo já foi enviado e o mock
+	 * setado
+	 * 	@param {Boolean|Error} callback.hasError
+	 * 	Retorna um objeto de erro caso não tenha sido possível ler
+	 * 	o arquivo, caso contrário retorna false
+	 */
+	me.loadFromHttp = function(path, calle){
+		var xhr = new MockitJs.XMLHttpRequest;
+		xhr.open('GET', path, true);
+		xhr.onreadystatechange = function(){
+			if (xhr.readyState == 4 && xhr.status == 200) {
+				var name = path.match(/[^\/]+$/);
+				var isOpen = MockitJs.IO.declareFileOpen(
+					name, xhr.responseText
+				);
+				if (calle && calle.constructor == Function) { calle(isOpen); }
+			}
+		};
+
+		xhr.send();
+	};
+
+	/**
+	 * @method loadFromDialog
 	 * Evoca um open file dialog do sistema para que o usuário
 	 * entregue ao MockitJs um arquivo com mock salvo
 	 *
