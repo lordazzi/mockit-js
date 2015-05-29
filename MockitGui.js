@@ -70,8 +70,12 @@ MockitJs.Gui = new function(){
 	};
 
 	var recordClick = function(){
-		recordButton.removeAttribute('class');
+		if (!recording && playing) {
+			alert('Impossível começar gravar http enquanto se está rodando um mock!');
+			return;
+		}
 
+		recordButton.removeAttribute('class');
 		if (recording) {
 			MockitJs.stopRecording();
 			recordButton.setAttribute('class', 'start-record');
@@ -123,11 +127,11 @@ MockitJs.Gui = new function(){
 	};
 
 	var closeClick = function(){
-		if (!MockitJs.IO.hasFile() || MockitJs.IO.hasFile() && confirm('Tem certeza que deseja fechar? As alterações do arquivo de mock aberto serão perdidas.')) {
+		if (!MockitJs.IO.hasFile() || MockitJs.IO.hasFile()) {
 			MockitJs.playHttp();
 			root.remove();
 
-			if (confirm('MockitJS Gui será fechado, deseja fechar o arquivo de mock aberto também?')) {
+			if (confirm('Deseja fechar o arquivo de mock aberto também?')) {
 				MockitJs.clear();
 			}
 		}
