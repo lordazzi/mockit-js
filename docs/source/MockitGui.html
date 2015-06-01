@@ -27,6 +27,7 @@
 if(!MockitJs) { alert('Impossível rodar MockitJs.Gui, importe o arquivo de MockitJs primeiro!');}
 MockitJs.Gui = new function(){
 	var root	= document.createElement('div');
+	root.setAttribute('style', 'z-index:1000;position:relative;');
 	var me		= this;
 
 	//	elementos do dom
@@ -79,10 +80,18 @@ MockitJs.Gui = new function(){
 		loadButton.addEventListener('click', loadClick, false);
 		saveButton.addEventListener('click', saveClick, false);
 
+		MockitJs.setAliasListener(function(url, method){
+			return prompt('Dê um apelido para a requisição da url '+url+', sob o método '+method);
+		});
+
 		if (MockitJs.IO.hasFile()) {
-			if (confirm('Existe um arquivo de mock aberto. Deseja fecha-lo e iniciar um novo do zero?')) {
-				MockitJs.clear();
-			}
+			//	implementar configurações de:
+			//	mostrar qual arquivo está sendo utilizado
+			//	perguntar sempre se deseja apelidar a requisição
+			//	
+			// if (confirm('Existe um arquivo de mock aberto. Deseja fecha-lo e iniciar um novo do zero?')) {
+			// 	MockitJs.clear();
+			// }
 		}
 	};
 
@@ -144,10 +153,10 @@ MockitJs.Gui = new function(){
 	};
 
 	var closeClick = function(){
-		if (!MockitJs.IO.hasFile() || MockitJs.IO.hasFile()) {
-			MockitJs.playHttp();
-			root.remove();
+		MockitJs.playHttp();
+		root.remove();
 
+		if (MockitJs.IO.hasFile()) {
 			if (confirm('Deseja fechar o arquivo de mock aberto também?')) {
 				MockitJs.clear();
 			}
@@ -304,7 +313,12 @@ MockitJs.Gui = new function(){
 		&lt;/div&gt;
 	*/};
 
-	_constructor();
+	if (document.body)
+		_constructor();
+	else 
+		window.onload = function(){
+			_constructor();
+		};
 };</pre>
 </body>
 </html>
