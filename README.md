@@ -1,5 +1,8 @@
 # mockito-js
+Versão atual: 2.0.6
 Um jeito fácil para mockar as requisições http de seu sistema!
+
+Para ler a documentação da api, <a href="www.mockitjs.com.br">clique aqui</a>
 
 para criação dos mocks, use:
 
