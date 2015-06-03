@@ -1,4 +1,4 @@
-# mockito-js
+# mockit-js
 Versão atual: 2.0.6
 Um jeito fácil para mockar as requisições http de seu sistema!
 
