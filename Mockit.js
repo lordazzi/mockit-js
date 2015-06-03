@@ -170,6 +170,7 @@ window.MockitJs = new function(){
 	 */
 	me.save = function(){
 		setTimeout(function(){
+			MockitJs.IO.setVersion();
 			var file = MockitJs.IO.getFile();
 			if (!file.name) { file.name = generateFileName(); }
 
@@ -332,6 +333,17 @@ window.MockitJs = new function(){
 	me.readParamAlias = function(args){
 		return MockitJs.IO.readParamAlias(args);
 	};
+
+	/**
+	 * @method getVersion
+	 * Retorna a versão atual do arquivo de mock
+	 * 
+	 * @return {String}
+	 * A versão no formato de data
+	 */
+	me.getVersion = function(){
+		return MockitJs.IO.getVersion();
+	}
 };
 
 /**
@@ -593,6 +605,33 @@ MockitJs.IO = new function(){
 			localStorage.mockitjs_filecontent != undefined
 		);
 	};
+
+	/**
+	 * @method setVersion
+	 * Define a versão do arquivo
+	 *
+	 * @return {Number}
+	 * Timestamp de agora é setado ao lado das urls no
+	 * arquivo, no atributo '_version'
+	 */
+	me.setVersion = function(){
+		var json = JSON.parse(localStorage.mockitjs_filecontent);
+		json._version = (new Date).getTime();
+		localStorage.mockitjs_filecontent = JSON.stringify(json);
+		return json._version;
+	};
+
+	/**
+	 * @method getVersion
+	 * Retorna a versão atual do arquivo de mock
+	 * 
+	 * @return {String}
+	 * A versão no formato de data
+	 */
+	me.getVersion = function(){
+		var json = JSON.parse(localStorage.mockitjs_filecontent);
+		return String(new Date(json._version));
+	}
 };
 
 /**
