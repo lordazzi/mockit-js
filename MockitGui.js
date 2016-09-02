@@ -63,10 +63,6 @@ MockitJs.Gui = new function(){
 		loadButton.addEventListener('click', loadClick, false);
 		saveButton.addEventListener('click', saveClick, false);
 
-		MockitJs.setAliasListener(function(url, method){
-			return prompt('Dê um apelido para a requisição da url '+url+', sob o método '+method);
-		});
-
 		if (MockitJs.IO.hasFile()) {
 			//	implementar configurações de:
 			//	mostrar qual arquivo está sendo utilizado
@@ -128,8 +124,7 @@ MockitJs.Gui = new function(){
 	var loadClick = function(){
 		if (!MockitJs.IO.hasFile() || MockitJs.IO.hasFile() && confirm('Existe um arquivo de mock aberto, abrir outro irá descartá-lo!')) {
 			MockitJs.loadFromDialog(function(e){
-				if (e)
-					alert(e.stack);
+				if (e) alert(e.stack);
 			});
 		}
 		document.body.focus();

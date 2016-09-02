@@ -20,8 +20,9 @@ window.MockitJs = new function(){
 	if (arguments.callee._singletonInstance)
     	return arguments.callee._singletonInstance;
     var me			= arguments.callee._singletonInstance = this;
-    var openAlias	= [];
-    me.version = 'v2.0.6';
+
+    //	versão
+    me.version = 'v2.0.7';
 
 	/**
 	 * Gera um nome para o arquivo que será salvo, caso ele seja um novo
@@ -35,18 +36,18 @@ window.MockitJs = new function(){
 	var generateFileName = function(){
 		var date = new Date();
 		var d = date.getDate();
-		d = d < 9 ? "0"+d : String(d);
+		d = (d < 9)? "0"+d : String(d);
 
 		var m = date.getMonth() + 1;
-		m = m < 9 ? "0"+m : String(m);
+		m = (m < 9)? "0"+m : String(m);
 
 		var Y = date.getFullYear();
 
 		var H = date.getHours();
-		H = H < 9 ? "0"+H : String(H);
+		H = (H < 9)? "0"+H : String(H);
 
 		var i = date.getMinutes();
-		i = i < 9 ? "0"+i : String(i);
+		i = (i < 9)? "0"+i : String(i);
 
 		var fileName = "mockitjs - "+d+"-"+m+"-"+Y+" "+H+"-"+i+".json";
 
@@ -58,8 +59,8 @@ window.MockitJs = new function(){
 	 * Inicia a captura das requisições http
 	 */
 	me.record = function(){
-		window.XMLHttpRequest = MockitJs.httpReader;
-		window.FormData = MockitJs.FormDataReader;
+		window.XMLHttpRequest	= MockitJs.httpReader;
+		window.FormData			= MockitJs.FormDataReader;
 	};
 
 	/**
@@ -67,8 +68,8 @@ window.MockitJs = new function(){
 	 * Para a captura das requisições http
 	 */
 	me.stopRecording = function(){
-		window.XMLHttpRequest = MockitJs.XMLHttpRequest;
-		window.FormData = MockitJs.FormData;
+		window.XMLHttpRequest	= MockitJs.XMLHttpRequest;
+		window.FormData			= MockitJs.FormData;
 	};
 
 	/**
@@ -80,7 +81,6 @@ window.MockitJs = new function(){
 	 * habilitada
 	 */
 	me.stopHttp = function(){
-		openAlias				= [];
 		window.XMLHttpRequest	= MockitJs.mockReader;
 	};
 
@@ -90,7 +90,6 @@ window.MockitJs = new function(){
 	 * as requisições http normalmente
 	 */
 	me.playHttp = function(){
-		openAlias				= [];
 		window.XMLHttpRequest = MockitJs.XMLHttpRequest;
 	};
 
@@ -199,142 +198,6 @@ window.MockitJs = new function(){
 	};
 
 	/**
-	 * @method setAliasListener
-	 * Antes da requisição http ser enviada para o servidor,
-	 * ele chama o método {@link #getAliasListener}, para
-	 * retornar uma função que, executando-a, irá dizer qual
-	 * será o alias do próximo parâmetro a ser enviado para o
-	 * servidor.
-	 *
-	 * O real proposito da criação deste método é a integração
-	 * do MockitJs com o seu GUI 
-	 * 
-	 * @param {Function} calle
-	 * Função chamada antes de cada requisição http
-	 *
-	 * @param {String} calle.url
-	 * Url da requisição a ser apelidada
-	 * 
-	 * @param {String} calle.method
-	 * Método da requisição a ser apelidada
-	 *
-	 * @return {Boolean}
-	 * Se a chamada foi setada ou não
-	 *
-	 * @private
-	 */
-	me.setAliasListener = function(calle){
-		var me = this;
-		if (typeof calle == 'function') {
-			aliasListener = calle;
-			return true;
-		}
-
-		return false;
-	};
-
-	/**
-	 * @method getAliasListener
-	 * Retorna a função setada externamente que entrega o alias
-	 * que será dado ao parâmetro
-	 * 
-	 * @return {String}
-	 * Alias da próxima requisição
-	 *
-	 * @private
-	 */
-	me.getAliasListener = function(){
-		return aliasListener;
-	};
-
-	/**
-	 * @method openAlias
-	 * Quando você precisa de um retorno simulado do arquivo de mock, mas
-	 * não sabe se os parâmetros estarão de acordo com sua necessidade,
-	 * você pode forçar um retorno de dados dando apelidos aos parâmetros
-	 * de envio.
-	 *
-	 * Basicamente você da apelidos simples aos dados complexos que são enviados
-	 * ao servidor e, quando o Mockit detectar que você está com este apelido
-	 * em aberto, ele vai enviar os dados relacionados a este apelido ao invés
-	 * dos dados que foram passados para a requisição http.
-	 *
-	 * Cada alias é vinculado com um url/método.
-	 *
-	 * Com este método você pode dizer ao Mockit qual alias você deseja manter
-	 * aberto.
-	 *
-	 * Você só pode abrir alias enquanto o Mockit estiver no modo de leitura
-	 * no mock, se você tentar abrir em uma situação diferente, apenas não
-	 * acontecerá nada.
-	 *
-	 * @param {String|String[]} alias
-	 * Qual/Quais alias você deseja abrir
-	 */
-	me.openAlias = function(alias){
-		if (alias && alias.constructor === Array) {
-			openAlias = openAlias.concat(alias);
-		} else if (alias && alias.constructor === String) {
-			openAlias.push(alias);
-		}
-	};
-
-	/**
-	 * @method closeAlias
-	 * Fecha um alias aberto
-	 * 
-	 * @param  {String|String[]} alias
-	 * Qual/Quais alias você deseja encerrar
-	 */
-	me.closeAlias = function(alias){
-		for (var i = 0; i < openAlias.length; i++) {
-			if (openAlias[i] == alias) {
-				openAlias.splice(i, 1);
-				i--;
-			}
-		}
-	};
-
-	/**
-	 * @method isAliasOpen
-	 * Verifica se um alias está aberto
-	 *
-	 * @param {String} alias
-	 * Nome do alias que você deseja verificar se está aberto
-	 * 
-	 * @return {Boolean}
-	 * Resposta se o alias está aberto
-	 */
-	me.isAliasOpen = function(alias){
-		return (openAlias.indexOf(alias) !== -1);
-	};
-
-	/**
-	 * @method readParamAlias
-	 * Buscas os parâmetros de uma requisição através de
-	 * sua url, método e apelido
-	 *
-	 * @params {Object} args
-	 * Objeto com os argumentos que devem ser enviados para
-	 * recuperar os parâmetros
-	 * 
-	 * @param  {String} args.url
-	 * Url da requisição
-	 * 
-	 * @param  {String} [args.method='GET']
-	 * Método http da requisição
-	 * 
-	 * @param  {String} args.alias
-	 * Apelido dado para os dados enviados na requisição
-	 * 
-	 * @return {String}
-	 * Dados enviados na requisição guardada
-	 */
-	me.readParamAlias = function(args){
-		return MockitJs.IO.readParamAlias(args);
-	};
-
-	/**
 	 * @method getVersion
 	 * Retorna a versão atual do arquivo de mock
 	 * 
@@ -378,7 +241,6 @@ MockitJs.IO = new function(){
 	if (arguments.callee._singletonInstance)
     	return arguments.callee._singletonInstance;
     var me = arguments.callee._singletonInstance = this;
-    var aliasListener = function(){};
 
 	/**
 	 * Método responsável por definir o arquivo como aberto
@@ -421,9 +283,6 @@ MockitJs.IO = new function(){
 	 * @param {String} [args.params="null"]
 	 * Parâmetro que estão sendo enviados para o servidor
 	 *
-	 * @param {String} [paramAlias=false]
-	 * Apelido que será dado para os parâmetros da requisição
-	 *
 	 * @param {String} [response='']
 	 * Resposta da requisição
 	 */
@@ -432,7 +291,6 @@ MockitJs.IO = new function(){
 		if (!args.url) { throw "Impossível registrar um mock sem a url de envio da requisição."; }
 		if (!args.method) { args.method = 'GET'; }
 		if (!args.params) { args.params = 'null'; }
-		if (!args.paramAlias) { args.paramAlias = false; }
 		if (!args.response) { args.response = ''; }
 
 		//	método da requisição http sempre em uppercase
@@ -452,55 +310,11 @@ MockitJs.IO = new function(){
 		if (!mock[args.url][args.method])
 			mock[args.url][args.method] = {};
 
-		if (args.paramAlias) {
-			var aliasKey = args.method+'-alias';
-			if (!mock[args.url][aliasKey])
-				mock[args.url][aliasKey] = {};
-
-			mock[args.url][aliasKey][args.paramAlias] = args.params;
-		}
-
 		//	alterando o arquivo
 		mock[args.url][args.method][args.params] = args.response;
 
 		//	salvando o arquivo
 		localStorage.mockitjs_filecontent = JSON.stringify(mock);
-	};
-
-	/**
-	 * @method readParamAlias
-	 * Buscas os parâmetros de uma requisição através de
-	 * sua url, método e apelido
-	 *
-	 * @params {Object} args
-	 * Objeto com os argumentos que devem ser enviados para
-	 * recuperar os parâmetros
-	 * 
-	 * @param  {String} args.url
-	 * Url da requisição
-	 * 
-	 * @param  {String} [args.method='GET']
-	 * Método http da requisição
-	 * 
-	 * @param  {String} args.alias
-	 * Apelido dado para os dados enviados na requisição
-	 * 
-	 * @return {String}
-	 * Dados enviados na requisição guardada
-	 */
-	me.readParamAlias = function(args){
-		if (!args) { args = {}; }
-		if (!args.url) { throw "Impossível ler alias sem a url"; }
-		if (!args.method) { args.method = 'GET'; }
-		if (!args.alias) { throw "Impossível ler alias sem o alias"; }
-
-		var mock	= JSON.parse(localStorage.mockitjs_filecontent);
-		var data	= mock[args.url];
-		if (!data) { return 'null'; }
-		data		= data[args.method+'-alias'];
-		if (!data) { return 'null'; }
-
-		return data[args.alias] || 'null';
 	};
 
 	/**
@@ -537,14 +351,6 @@ MockitJs.IO = new function(){
 		if (!data) {
 			console.warn('Tentando ler informações de uma url/método que nunca foram mocados! '+url+' sobre '+method);
 			return vazio;
-		}
-
-		//	verificando se existe um alias em aberto, para sobrescrever os dados enviados
-		var aliasses = data[method+"-alias"];
-		for (var alias in aliasses) {
-			if (MockitJs.isAliasOpen(alias)) {
-				params = aliasses[alias];
-			}
 		}
 
 		//	se não existir nada mocado nesta posição,
@@ -711,7 +517,6 @@ MockitJs.FormDataReader = function FormData() {
  */
 MockitJs.httpReader = function XMLHttpRequest(){
 	var me		= new MockitJs.XMLHttpRequest;
-	var alias	= '';
 
 	me.addEventListener("readystatechange", function(){ 
 		if (me.readyState == 4 && me.status == 200) {
@@ -724,16 +529,11 @@ MockitJs.httpReader = function XMLHttpRequest(){
 				url		= url.replace(/[?]$/, '');
 			}
 
-			//	capturando o alias dos parâmetros que serão enviados
-			var _aliasListen = MockitJs.getAliasListener();
-			var _alias = alias || (typeof _aliasListen == 'function' ? _aliasListen(url, me.method) : '');
-
 			//	salvando requisição
 			MockitJs.IO.feedFile({
 				url:		url,
 				method:		me.method,
 				params:		me.data,
-				paramAlias:	_alias,
 				response:	me.responseText
 			});
 		}
@@ -778,25 +578,6 @@ MockitJs.httpReader = function XMLHttpRequest(){
 	me.open = function(method){
 		me.method = method;
 		open.apply(this, arguments);
-	};
-
-	/**
-	 * @method setAlias
-	 * Método para setar um apelido nos parâmetros que serão enviados
-	 * para o http.
-	 *
-	 * A utilidade de alias nos parâmetros é para usá-los na aplicação
-	 * de teste, pois no lugar de escrever toda a string de parâmetros
-	 * que serão enviados para o servidor, você define que o alias está
-	 * habilitado e, se aquela url unido com aquele método http tiver
-	 * armazenado nela aquele apelido habilitado, ela ignora os parâmetros
-	 * que a aplicação esta enviando e assume os parâmetros do alias.
-	 *
-	 * @param {String} alias
-	 * Apelido que será dado aos parâmetros que estão para ser enviados
-	 */
-	me.setAlias = function(_alias){
-		alias = _alias;
 	};
 
 	return me;
