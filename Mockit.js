@@ -19,10 +19,10 @@ window.MockitJs = new function(){
 	//	singlentando...
 	if (arguments.callee._singletonInstance)
     	return arguments.callee._singletonInstance;
-    var me			= arguments.callee._singletonInstance = this;
+    var me		= arguments.callee._singletonInstance = this;
 
     //	versão
-    me.version = 'v2.0.7';
+    me.version = 'v2.1.7';
 
 	/**
 	 * Gera um nome para o arquivo que será salvo, caso ele seja um novo
@@ -105,9 +105,10 @@ window.MockitJs = new function(){
 	 * @param {Function} callback
 	 * Função executada quando o arquivo já foi enviado e o mock
 	 * setado
-	 * 	@param {Boolean|Error} callback.hasError
-	 * 	Retorna um objeto de erro caso não tenha sido possível ler
-	 * 	o arquivo, caso contrário retorna false
+	 * 
+	 * @param {Boolean|Error} callback.hasError
+	 * Retorna um objeto de erro caso não tenha sido possível ler
+	 * o arquivo, caso contrário retorna false
 	 */
 	me.loadFromHttp = function(path, calle){
 		var xhr = new MockitJs.XMLHttpRequest;
@@ -194,7 +195,7 @@ window.MockitJs = new function(){
 	 * Limpa o mock no browser
 	 */
 	me.clear = function(){
-		MockitJs.IO.clear();
+		MockitJs.IO.createNewFile();
 	};
 
 	/**
@@ -206,12 +207,11 @@ window.MockitJs = new function(){
 	 */
 	me.getVersion = function(){
 		return MockitJs.IO.getVersion();
-	}
+	};
 };
 
 /**
- * @property
- * @type {String}
+ * @property {String} cacheVarName
  *
  * Algumas aplicações enviam um parâmetro para requisições http
  * para quebrar cache de arquivo, isso atrapalha o MockitJs (:
@@ -222,13 +222,26 @@ window.MockitJs = new function(){
 MockitJs.cacheVarName = '';
 
 /**
- * @property
- * @type {Boolean}
+ * @property {Boolean} syncronizeApp
  *
  * Força toda a aplicação trabalhar de forma sincrona (pelo menos
  * ao que se refere a requisições http)
  */
 MockitJs.syncronizeApp = false;
+
+/**
+ * @property {String[]|Boolean} ignoreRequestHeaders
+ *
+ * Conjunto de nomes de headers de requisição que não devem ser
+ * interpretados pela ferramenta de mock como um parâmetro enviado
+ * para o servidor.
+ *
+ * Se o valor estiver com 'true' atribuido ele ignora todos os headers
+ */
+MockitJs.ignoreRequestHeaders = [
+	'Accept-Encoding', 'Accept-Language',
+	'Host', 'Referer', 'User-Agent'
+];
 
 /**
  * @class MockitJs.IO
@@ -262,13 +275,21 @@ MockitJs.IO = new function(){
 			return e;
 		}
 
+		me.validOpeningFile(content);
+
 		localStorage.mockitjs_filecontent	= content;
 		localStorage.mockitjs_filename		= name;
 
 		return false;
 	};
 
+	me.validOpeningFile = function(fileContent){
+		return true;
+	};
+
 	/**
+	 * @method feedOpenedFile
+	 * 
 	 * Alimenta o arquivo aberto com mais informações de mock
 	 *
 	 * @param {Object} args
@@ -277,8 +298,15 @@ MockitJs.IO = new function(){
 	 * @param  {String} args.url
 	 * Url para qual a requisição http foi direcionada
 	 *
+	 * @param {Number} args.status
+	 * Código que representa quando o status que o servidor respondeu
+	 * a requisição enviada
+	 *
+	 * @param {Number} args.requestTime
+	 * Quanto tempo a requisição demorou para ser executada
+	 *
 	 * @param {String} [args.method="GET"]
-	 * Método http que a requisição foi chamada (GET, POST, PUT, DELETE)
+	 * Método http que a requisição foi chamada (GET, POST, PUT, DELETE, OPTIONS)
 	 * 
 	 * @param {String} [args.params="null"]
 	 * Parâmetro que estão sendo enviados para o servidor
@@ -286,35 +314,43 @@ MockitJs.IO = new function(){
 	 * @param {String} [response='']
 	 * Resposta da requisição
 	 */
-	me.feedFile = function(args){
-		if (!args) { args = {}; }
-		if (!args.url) { throw "Impossível registrar um mock sem a url de envio da requisição."; }
-		if (!args.method) { args.method = 'GET'; }
-		if (!args.params) { args.params = 'null'; }
-		if (!args.response) { args.response = ''; }
+	me.feedOpenedFile = function(args){
+		if (!args)				{ args = {}; }
+		if (!args.url)			{ throw "Impossível registrar um mock sem a url de envio da requisição."; }
+		if (!args.status && args.status !== 0) { throw "Impossível registrar um mock sem o status de resposta"; }
+		if (!args.requestTime)	{ args.requestTime = 0; }
+		if (!args.method)		{ args.method = 'GET'; }
+		if (!args.params)		{ args.params = 'null'; }
+		if (!args.response)		{ args.response = ''; }
 
 		//	método da requisição http sempre em uppercase
 		args.method = String(args.method).toUpperCase();
 
 		//	local onde deveria estar o arquivo está vazio?
 		//	O método clear coloca um objeto
-		if (!localStorage.mockitjs_filecontent) { me.clear(); }
+		if (!localStorage.mockitjs_filecontent)
+			me.createNewFile();
 
 		//	lê o conteúdo do arquivo aberto
 		var mock	= JSON.parse(localStorage.mockitjs_filecontent);
+		var content	= mock.content;
 
 		///
-		if (!mock[args.url])
-			mock[args.url] = {};
+		if (!content[args.url])
+			content[args.url] = {};
 
-		if (!mock[args.url][args.method])
-			mock[args.url][args.method] = {};
+		if (!content[args.url][args.method])
+			content[args.url][args.method] = {};
 
 		//	alterando o arquivo
-		mock[args.url][args.method][args.params] = args.response;
+		content[args.url][args.method][args.params] = {
+			status:			args.status,
+			requestTime:	args.requestTime,
+			response:		args.response
+		};
 
 		//	salvando o arquivo
-		localStorage.mockitjs_filecontent = JSON.stringify(mock);
+		localStorage.mockitjs_filecontent = JSON.stringify(content);
 	};
 
 	/**
@@ -342,10 +378,20 @@ MockitJs.IO = new function(){
 		method		= String(method).toUpperCase();
 		params		= params || '';
 
+		var vazio	= {
+		
+			status: 200,
+
+			requestTime: 0,
+
+			response: null
+
+		};
+
 		var mock	= JSON.parse(localStorage.mockitjs_filecontent);
-		var data	= mock[url] || {};
-		var vazio	= '{}';
-		data		= data[method] || {};
+		var data	= mock.content;
+		data		= mock[url]		|| {};
+		data		= data[method]	|| {};
 
 		//	verificando se existe algo dentro da url[metodo]
 		if (!data) {
@@ -390,12 +436,37 @@ MockitJs.IO = new function(){
 	};
 
 	/**
-	 * @method clear
-	 * Limpa o mock no browser
+	 * @method createNewFile
+	 * Cria a estrutura de um novo arquivo para guardar os mocks
 	 */
-	me.clear = function(){
-		localStorage.mockitjs_filecontent = '{}';
-		localStorage.mockitjs_filename = '';
+	me.createNewFile = function(){
+		var emptyFile = {
+
+			mockerVersion: MockitJs.version,
+
+			fileVersion: (new Date).getTime(),
+
+			readConfigs: {
+
+			},
+
+			configs: {
+
+				cacheVarName:			MockitJs.cacheVarName,
+
+				syncronizeApp:			MockitJs.syncronizeApp,
+
+				ignoreRequestHeaders:	MockitJs.ignoreRequestHeaders
+
+			},
+
+			content: {
+
+			}
+		};
+
+		localStorage.mockitjs_filename		= '';
+		localStorage.mockitjs_filecontent	= JSON.stringify(emptyFile);
 	};
 
 	/**
@@ -422,9 +493,9 @@ MockitJs.IO = new function(){
 	 */
 	me.setVersion = function(){
 		var json = JSON.parse(localStorage.mockitjs_filecontent);
-		json._version = (new Date).getTime();
+		json.fileVersion = (new Date).getTime();
 		localStorage.mockitjs_filecontent = JSON.stringify(json);
-		return json._version;
+		return json.fileVersion;
 	};
 
 	/**
@@ -436,8 +507,8 @@ MockitJs.IO = new function(){
 	 */
 	me.getVersion = function(){
 		var json = JSON.parse(localStorage.mockitjs_filecontent);
-		return String(new Date(json._version));
-	}
+		return String(new Date(json.fileVersion));
+	};
 };
 
 /**
@@ -455,7 +526,186 @@ MockitJs.IO = new function(){
 MockitJs.XMLHttpRequest = window.XMLHttpRequest;
 
 /**
- * @class MockitJs.FormData
+ * @class MockitJs.ArgumentObject
+ *
+ * Representa todos os argumentos que forem enviados para o
+ * servidor que forem suportados pela biblioteca, incluindo
+ * os headers de requisição
+ */
+MockitJs.ArgumentObject = function(params){
+
+	var me				= this;
+	var requestParams	= params;
+	var headers			= {};
+
+	var isXml;
+	var isValidJson;
+	var isMockedFormData;
+	var isNull;
+	var isLiteral;
+
+	var constructor = function(){
+		if (params instanceof File || params instanceof Blob)
+			throw "o sistema ainda não suporta mock de arquivos e de objetos blob";
+
+		isXml				= me.isXml(params);
+		isValidJson			= me.isValidJson(params);
+		isMockedFormData	= me.isMockedFormData(params);
+		isNull				= me.isNull(params);
+		isLiteral			= me.isLiteral(params);
+
+		if (!isXml && !isValidJson && !isMockedFormData && !isNull && !isLiteral)
+			throw "o sistema não suporta dados diferentes dos tipos: string, number, boolean, xml, json, formdata e null";
+
+	};
+
+	/**
+	 * @method isXml
+	 * 
+	 * Verifica se um dado é um objeto XML
+	 * 
+	 * @param anyData
+	 * Qualquer dado
+	 * 
+	 * @return {Boolean}
+	 */
+	me.isXml = function(anyData){
+		return (params instanceof XMLDocument);
+	};
+
+	/**
+	 * @method isValidJson
+	 * 
+	 * Verifica se um dado é um JSON válido não
+	 * circular
+	 * 
+	 * @param anyData
+	 * Qualquer dado
+	 * 
+	 * @return {Boolean}
+	 */
+	me.isValidJson = function(anyData){
+		if (anyData && (anyData.constructor === Object || anyData.constructor === Array)) {
+			try {
+				JSON.stringify(anyData);
+				return true;
+			} catch (e) {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	};
+
+	/**
+	 * @method isMockedFormData
+	 * 
+	 * Verifica se o dado enviado é uma instância de
+	 * {@link MockitJs.ArgumentObject.FormDataReader}
+	 * 
+	 * @param anyData
+	 * Qualquer dado
+	 * 
+	 * @return {Boolean}
+	 */
+	me.isMockedFormData = function(anyData){
+		return (params instanceof MockitJs.ArgumentObject.FormDataReader);
+	};
+
+	/**
+	 * @method isNull
+	 * 
+	 * Verifica se um dado é nulo ou equivalente a nulo
+	 * 
+	 * @param anyData
+	 * Qualquer dado
+	 * 
+	 * @return {Boolean}
+	 */
+	me.isNull = function(anyData){
+		return (anyData == null);
+	};
+
+	/**
+	 * @method isLiteral
+	 * 
+	 * Verifica se um dado é uma instância de String, Number
+	 * ou Boolean
+	 * 
+	 * @param anyData
+	 * Qualquer dado
+	 * 
+	 * @return {Boolean}
+	 */
+	me.isLiteral = function(anyData){
+		return (
+			Object(params) instanceof String ||
+			Object(params) instanceof Number ||
+			Object(params) instanceof Boolean
+		);
+	};
+
+	/**
+	 * @method setRequestHeader
+	 * 
+	 * Atribui a esta classe os headers que forem adicionados à requisição
+	 * 
+	 * @param name
+	 * O nome do header
+	 *
+	 * @param value
+	 * O valor que será atribuido ao header
+	 */
+	me.setRequestHeader = function(name, value){
+		name	= String(name).toLowerCase();
+		value	= String(value);
+
+		if (MockitJs.ignoreRequestHeaders === true)
+			return;
+
+		for (var i = 0; i < MockitJs.ignoreRequestHeaders.length; i++)
+			if (MockitJs.ignoreRequestHeaders[i].toLowerCase() == name)
+				return;
+
+		headers[name] = value;
+	};
+
+	/**
+	 * @method toString
+	 * 
+	 * Transforma este objeto em sua representação como string
+	 * 
+	 * @return {String}
+	 */
+	me.toString = function(){
+		var asString = {};
+
+		if (isNull) {
+			asString.type = 'null'
+		} else if (isValidJson) {
+			asString.type = 'json';
+			asString.data = JSON.stringify(requestParams);
+		} else if (isMockedFormData) {
+			asString.type = 'form';
+			asString.data = String(requestParams);
+		} else if (isXml) {
+			asString.type = 'xml';
+			asString.data = (new XMLSerializer).serializeToString(requestParams);
+		} else if (isLiteral) {
+			asString.type = 'literal';
+			asString.data = requestParams;
+		}
+
+		asString.headers = headers;
+
+		return JSON.stringify(asString);
+	};
+
+	constructor();
+};
+
+/**
+ * @class MockitJs.ArgumentObject.FormData
  * Classe nativa de armazenamento de dados do javascript
  *
  * @method append
@@ -473,10 +723,11 @@ MockitJs.XMLHttpRequest = window.XMLHttpRequest;
  *
  * @private
  */
-MockitJs.FormData = window.FormData;
+MockitJs.ArgumentObject.FormData = window.FormData;
 
 /**
- * @class FormDataReader
+ * @class MockitJs.ArgumentObject.FormDataReader
+ * 
  * Enquanto a aplicação está escutando as requisições http,
  * este protótipo deve substituir {@link MockitJs.FormData}
  * enquanto {@link MockitJs.httpReader} estiver substituindo
@@ -486,10 +737,11 @@ MockitJs.FormData = window.FormData;
  * 
  * @private
  */
-MockitJs.FormDataReader = function FormData() {
+MockitJs.ArgumentObject.FormDataReader = function FormData(){
 	var me = new MockitJs.FormData;
 	var append = me.append;
 	var json = {};
+
 	me.append = function(name, value){
 		json[name] = value;
 		append.apply(me, arguments);
@@ -517,9 +769,12 @@ MockitJs.FormDataReader = function FormData() {
  */
 MockitJs.httpReader = function XMLHttpRequest(){
 	var me		= new MockitJs.XMLHttpRequest;
+	var headers	= {};
+	var data;
+	var timeWhenSend;
 
 	me.addEventListener("readystatechange", function(){ 
-		if (me.readyState == 4 && me.status == 200) {
+		if (me.readyState == 4) {
 
 			//	tirando o parâmetro adicional para remoção de cache
 			var url = me.responseURL;
@@ -530,17 +785,20 @@ MockitJs.httpReader = function XMLHttpRequest(){
 			}
 
 			//	salvando requisição
-			MockitJs.IO.feedFile({
-				url:		url,
-				method:		me.method,
-				params:		me.data,
-				response:	me.responseText
+			MockitJs.IO.feedOpenedFile({
+				url:			url,
+				method:			me.method,
+				params:			String(data),
+				response:		me.responseText,
+				status:			me.status,
+				requestTime:	((new Date).getTime() - timeWhenSend)
 			});
 		}
 	}, false);
 
 	/**
 	 * @method send
+	 * 
 	 * Sobrescreve o método {@link MockitJs.XMLHttpRequest#send send}
 	 * de {@link MockitJs.XMLHttpRequest XMLHttpRequest}
 	 * para ler os parâmetros que são enviados para o servidor
@@ -550,26 +808,32 @@ MockitJs.httpReader = function XMLHttpRequest(){
 	 */
 	var send = me.send;
 	me.send = function(data){
-		if (!data) {
-			data = 'null';
-		} else if (data.constructor === Object) {
-			data = JSON.stringify(data);
-		} else if (data instanceof MockitJs.FormDataReader) {
-			data = String(data);
-		} else if (data instanceof Node) {
-			var parser = new XMLSerializer;
-			data = parser.serializeToString(data);
-		} else if (data instanceof Blob) {
-			data = URL.createObjectURL(data);
-		} else {
-			data = String(data);
-		}
-		me.data = data;
-		send.apply(this, arguments);
+		if (timeWhenSend) return send.apply(me, arguments);
+
+		timeWhenSend	= (new Date).getTime();
+		data			= new MockitJs.ArgumentObject(data);
+		for (var key in headers)
+			data.setRequestHeader(key, headers[key]);
+
+		return send.apply(me, arguments);
+	};
+
+	/**
+	 * @method setRequestHeader 
+	 *
+	 * Sobrescreve o método {@link MockitJs.XMLHttpRequest#setRequestHeader setRequestHeader}
+	 * de {@link MockitJs.XMLHttpRequest XMLHttpRequest} para ler todos os headers
+	 * que forem enviados para o servidor
+	 */
+	var setRequestHeader = me.setRequestHeader;
+	me.setRequestHeader = function(name, value){
+		headers[name] = value;
+		return setRequestHeader.apply(me, arguments);
 	};
 
 	/**
 	 * @method open
+	 * 
 	 * Sobrescreve o método {@link MockitJs.XMLHttpRequest#send open}
 	 * de {@link MockitJs.XMLHttpRequest XMLHttpRequest}
 	 * para ler o método que a requisição irá utilizar
@@ -577,7 +841,7 @@ MockitJs.httpReader = function XMLHttpRequest(){
 	var open = me.open;
 	me.open = function(method){
 		me.method = method;
-		open.apply(this, arguments);
+		return open.apply(me, arguments);
 	};
 
 	return me;
@@ -602,8 +866,8 @@ MockitJs.mockReader = function XMLHttpRequest(){
 	var headers = {};
 
 	me.DONE = 4;
-	me.HEADERS_RECEIVED = 2;
 	me.LOADING = 3;
+	me.HEADERS_RECEIVED = 2;
 	me.OPENED = 1;
 	me.UNSENT = 0;
 
@@ -645,12 +909,16 @@ MockitJs.mockReader = function XMLHttpRequest(){
 	var simularIO = function(params){
 		var data = MockitJs.IO.readFile(me.responseURL, method, params);
 
-		me.response		= data;
-		me.responseText	= data;
+		me.response		= data.response;
+		me.responseText	= data.response;
 		me.readyState	= 4;
 		me.status		= 200;
 
 		me.onreadystatechange(me);
+
+		// adicionar aqui emissão de eventos,
+		// respeitar aqui uma operação asincrona ou o tempo que a consulta deve demorar
+		// tratar de forma adequada o objeto de argumentos
 	};
 
 	me.upload = function(){};
