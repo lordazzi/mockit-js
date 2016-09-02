@@ -1,5 +1,9 @@
 # mockit-js
-Versão atual: 2.0.6
+Versão: 2.0.7
+Remoção da funcionalidade 'alias'.
+A funcionalidade era inconveniente e inútil. 
+
+Versão: 2.0.6
 Um jeito fácil para mockar as requisições http de seu sistema!
 
 Para ler a documentação da api, <a target="_blank" href="http://www.mockitjs.com.br">clique aqui</a>
