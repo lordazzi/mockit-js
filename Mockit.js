@@ -16,6 +16,9 @@
  */
 window.MockitJs = new function(){
 
+	//	garantindo que não seja evocado como função, mas somente como instância
+	if (this === window) return new (arguments.callee)();
+
 	//	singlentando...
 	if (arguments.callee._singletonInstance)
     	return arguments.callee._singletonInstance;
@@ -230,6 +233,16 @@ MockitJs.cacheVarName = '';
 MockitJs.syncronizeApp = false;
 
 /**
+ * @property {Boolean} turnAllRequestTimesIntoZero
+ *
+ * Semelhante ao {#syncronizeApp} mas não deixa as requisições sincronas,
+ * mas deixa elas com um tempo muito próximo a 0 milisegundos, para evitar
+ * ficar esperando o tempo de cada requisição quando os testes unitários
+ * forem executados
+ */
+MockitJs.turnAllRequestTimesIntoZero = false;
+
+/**
  * @property {String[]|Boolean} ignoreRequestHeaders
  *
  * Conjunto de nomes de headers de requisição que não devem ser
@@ -244,12 +257,59 @@ MockitJs.ignoreRequestHeaders = [
 ];
 
 /**
+ * @method removeNetworkCable
+ * 
+ * Faz com que as requisições mocadas comecem a lençar erro 0, simbolizando
+ * a ausência de conexão com o servidor.
+ *
+ * Esta funcionalidade serve para mocar situações onde um problema na rede
+ * ou no servidor possa lançar um problema em uma situação onde um conjunto
+ * de serviços que se interdependem estão sendo consumidos pelo front end e
+ * um deles falha.
+ */
+MockitJs.removeNetworkCable = function(){
+	MockitJs.hasNetworkConnection.networkCableStatus = false;
+};
+
+/**
+ * @method plugNetworkCable
+ * 
+ * Reconecta o cabo com a rede ficticia
+ * 
+ * Esta funcionalidade serve para mocar situações onde um problema na rede
+ * ou no servidor possa lançar um problema em uma situação onde um conjunto
+ * de serviços que se interdependem estão sendo consumidos pelo front end e
+ * um deles falha.
+ */
+MockitJs.plugNetworkCable = function(){
+	MockitJs.hasNetworkConnection.networkCableStatus = true;
+};
+
+/**
+ * @method hasNetworkConnection
+ * 
+ * Verifica se existe conectividade com a rede ficticia.
+ * 
+ * Esta funcionalidade serve para mocar situações onde um problema na rede
+ * ou no servidor possa lançar um problema em uma situação onde um conjunto
+ * de serviços que se interdependem estão sendo consumidos pelo front end e
+ * um deles falha.
+ */
+MockitJs.hasNetworkConnection = function(){
+	return (arguments.callee.networkCableStatus === undefined || arguments.callee.networkCableStatus === true);
+};
+
+/**
  * @class MockitJs.IO
  * Classe responsável pela manipulação do arquivo de mock
  *
  * @private
  */
 MockitJs.IO = new function(){
+	
+	//	garantindo que não seja evocado como função, mas somente como instância
+	if (this === window) return new (arguments.callee)();
+
 	//	singlentando...
 	if (arguments.callee._singletonInstance)
     	return arguments.callee._singletonInstance;
@@ -368,7 +428,7 @@ MockitJs.IO = new function(){
 	 * @param  {String} method
 	 * Método http da requisição
 	 * 
-	 * @param  {String} [params]
+	 * @param  {MockitJs.ArgumentObject} [params]
 	 * Dados que foram enviados para o servidor
 	 * 
 	 * @return {String}
@@ -533,6 +593,9 @@ MockitJs.XMLHttpRequest = window.XMLHttpRequest;
  * os headers de requisição
  */
 MockitJs.ArgumentObject = function(params){
+
+	//	garantindo que não seja evocado como função, mas somente como instância
+	if (this === window) return new (arguments.callee)();
 
 	var me				= this;
 	var requestParams	= params;
@@ -738,6 +801,11 @@ MockitJs.ArgumentObject.FormData = window.FormData;
  * @private
  */
 MockitJs.ArgumentObject.FormDataReader = function FormData(){
+
+	//	garantindo que não seja evocado como função, mas somente como instância
+	if (this === window)
+		throw "TypeError: Failed to construct 'FormData': Please use the 'new' operator, this DOM object constructor cannot be called as a function.";
+
 	var me = new MockitJs.FormData;
 	var append = me.append;
 	var json = {};
@@ -768,6 +836,11 @@ MockitJs.ArgumentObject.FormDataReader = function FormData(){
  * @extends MockitJs.XMLHttpRequest
  */
 MockitJs.httpReader = function XMLHttpRequest(){
+
+	//	garantindo que não seja evocado como função, mas somente como instância
+	if (this === window)
+		throw "TypeError: Failed to construct 'XMLHttpRequest': Please use the 'new' operator, this DOM object constructor cannot be called as a function.";
+
 	var me		= new MockitJs.XMLHttpRequest;
 	var headers	= {};
 	var data;
@@ -859,11 +932,16 @@ MockitJs.httpReader = function XMLHttpRequest(){
  * @private
  */
 MockitJs.mockReader = function XMLHttpRequest(){
+
+	//	garantindo que não seja evocado como função, mas somente como instância
+	if (this === window) return new (arguments.callee)();
+	
 	var me = this;
 
-	var async = true;
-	var method = 'GET';
-	var headers = {};
+	var async	= true;
+	var method	= 'GET';
+	var headers	= {};
+	var events	= {};
 
 	me.DONE = 4;
 	me.LOADING = 3;
@@ -886,42 +964,26 @@ MockitJs.mockReader = function XMLHttpRequest(){
 	me.response = '';
 	me.responseText = '';
 
-	me.onabort = function(){};
-	me.onerror = function(){};
-	me.onload = function(){};
-	me.onloadend = function(){};
-	me.onloadstart = function(){};
-	me.onprogress = function(){};
-	me.onreadystatechange = function(){};
-	me.ontimeout = function(){};
-
-	/**
-	 * @method simularIO
-	 * Faz a leitura do mock se baseando nas informações
-	 * passadas para o objeto esperando que ele efetuasse
-	 * a operação http
-	 * 
-	 * @param  {String} params
-	 * Valores que serão enviados para o servidor
-	 *
-	 * @private
-	 */
-	var simularIO = function(params){
-		var data = MockitJs.IO.readFile(me.responseURL, method, params);
-
-		me.response		= data.response;
-		me.responseText	= data.response;
-		me.readyState	= 4;
-		me.status		= 200;
-
-		me.onreadystatechange(me);
-
-		// adicionar aqui emissão de eventos,
-		// respeitar aqui uma operação asincrona ou o tempo que a consulta deve demorar
-		// tratar de forma adequada o objeto de argumentos
-	};
+	me.onabort = function(){ fireEvent('abort', [ me ]); };
+	me.onerror = function(){ fireEvent('error', [ me ]); };
+	me.onload = function(){ fireEvent('load', [ me ]); };
+	me.onloadend = function(){ fireEvent('loadend', [ me ]); };
+	me.onloadstart = function(){ fireEvent('loadstart', [ me ]); };
+	me.onprogress = function(){ fireEvent('progress', [ me ]); };
+	me.ontimeout = function(){ fireEvent('timeout', [ me ]); };
+	me.onreadystatechange = function(){ fireEvent('readystatechange', [ me ]); };
 
 	me.upload = function(){};
+
+	var fireEvent = function(eventName){
+		if (events[eventName] instanceof Array) {
+			for (var i = 0; i < events[eventName].length; i++) {
+				var callable = events[eventName][i];
+				if (Object(callable) instanceof Function)
+					callable();
+			}
+		}
+	};
 
 	me.setRequestHeader = function(header, value) {
 		headers[header] = value;
@@ -941,7 +1003,6 @@ MockitJs.mockReader = function XMLHttpRequest(){
 		return str;
 	};
 
-
 	me.getResponseHeader = function(header) {
 		return headers[header] || '';
 	};
@@ -952,17 +1013,47 @@ MockitJs.mockReader = function XMLHttpRequest(){
 		me.responseURL	= url;
 	};
 
-	me.addEventListener = function(event, call){
-		me['on'+event] = call;
+	me.addEventListener = function(eventName, call){
+		if (!events[eventName]) events[eventName] = [];
+		events[eventName].push(call);
 	};
 
 	me.send = function(params){
-		if (async && !MockitJs.syncronizeApp) {
+		var me = this;
+
+		var sending = function(){
+			if (!MockitJs.hasNetworkConnection()) {
+				me.readyState			= 4;
+				me.status				= 0;
+				me.response				= "";
+				me.responseText			= "";
+			} else {
+				me.response				= data.response;
+				me.responseText			= data.response;
+				me.readyState			= 4;
+				me.status				= data.status;
+			}
+
+			var mainResponseCode	= Math.floor(me.status / 100);
+			if (me.status === 0 || mainResponseCode === 4 || mainResponseCode === 5)
+				me.onerror();
+
+			me.onreadystatechange(me);
+		};
+
+		var data = MockitJs.IO.readFile(me.responseURL, method, new MockitJs.ArgumentObject(params));
+
+		// tratar de forma adequada o objeto de argumentos
+		if (async || MockitJs.syncronizeApp) {
+			sending();
+		} else if (MockitJs.turnAllRequestTimesIntoZero) {
 			setTimeout(function(){
-				simularIO(params);
+				sending();
 			}, 0);
 		} else {
-			simularIO(params);
+			setTimeout(function(){
+				sending();
+			}, data.requestTime);
 		}
 	};
 };
