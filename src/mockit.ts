@@ -21,17 +21,21 @@ export namespace MockitJs {
     export class MockitJs {
         private static instance;
 
-        public static getInstance() {
+        public static getInstance(config?: Config) {
             if (!this.instance) {
-                this.instance = new MockitJs();
+                this.instance = new MockitJs(config);
             }
 
             return this.instance;
         }
 
-        private constructor() {
+        private constructor(config?: Config) {
 
         }
+    }
+
+    export interface Config {
+        ignoreRequestHeaders: boolean;
     }
 
     /**
@@ -121,8 +125,18 @@ export namespace MockitJs {
             );
         }
 
-        public setRequestHeader() {
+        public setRequestHeader(name, value) {
+            name = String(name).toLowerCase();
+            value = String(value);
 
+            if (MockitJs.ignoreRequestHeaders === true)
+                return;
+
+            for (var i = 0; i < MockitJs.ignoreRequestHeaders.length; i++)
+                if (MockitJs.ignoreRequestHeaders[i].toLowerCase() == name)
+                    return;
+
+            headers[name] = value;
         }
 
         public toString(): string {
