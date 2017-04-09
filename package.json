@@ -1,0 +1,30 @@
+{
+  "name": "mockit-js",
+  "version": "2.0.9",
+  "description": "A simple way to mock an javascript system",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lordazzi/mockit-js.git"
+  },
+  "keywords": [
+    "mockit",
+    "mock",
+    "javascript",
+    "typescript",
+    "test",
+    "spy",
+    "http",
+    "xmlhttprequest",
+    "interceptor"
+  ],
+  "author": "Ricardo Azzi Silva",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lordazzi/mockit-js/issues"
+  },
+  "homepage": "https://github.com/lordazzi/mockit-js#readme"
+}
