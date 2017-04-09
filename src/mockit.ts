@@ -52,8 +52,15 @@ export namespace MockitJs {
 
     }
 
+    type ArgumentObjectAcceptTypes = File | Blob | XMLDocument | Object | Array<any> | string | number | boolean | String | Number | Boolean;
+
     enum ArgumentObjectType {
-        
+        FILE,
+        BLOB,
+        XML,
+        JSON,
+        PRIMITIVE,
+        NULL
     }
 
     /**
@@ -66,7 +73,7 @@ export namespace MockitJs {
 
         private type: ArgumentObjectType = null;
 
-        public constructor(params: File | Blob | XMLDocument | Object | Array<any> | string | number | boolean | String | Number | Boolean) {
+        public constructor(params: ArgumentObjectAcceptTypes) {
             if (params instanceof File || params instanceof Blob)
                 throw "MockitJs lib does not support mock of files neither blob objects.";
 
@@ -81,24 +88,37 @@ export namespace MockitJs {
 
         }
 
-        public isXml(): boolean {
-
+        public isXml(param: ArgumentObjectAcceptTypes): boolean {
+            return param instanceof XMLDocument;
         }
 
-        public isValidJson(): boolean {
-
+        public isValidJson(param: ArgumentObjectAcceptTypes): boolean {
+            if (param && (param.constructor === Object || param.constructor === Array)) {
+                try {
+                    JSON.stringify(param);
+                    return true;
+                } catch (e) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
         }
 
-        public isMockedFormData(): boolean {
-
+        public isMockedFormData(param: ArgumentObjectAcceptTypes): boolean {
+            return param instanceof FormDataReader;
         }
 
-        public isNull(): boolean {
-
+        public isNull(param: ArgumentObjectAcceptTypes): boolean {
+            return (param == null);
         }
 
-        public isLiteral(): boolean {
-
+        public isLiteral(param): boolean {
+            return (
+                Object(param) instanceof String ||
+                Object(param) instanceof Number ||
+                Object(param) instanceof Boolean
+            );
         }
 
         public setRequestHeader() {
