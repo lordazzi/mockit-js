@@ -1,10 +1,12 @@
 {
   "name": "mockit-js",
-  "version": "2.0.9",
+  "version": "3.0.0",
   "description": "A simple way to mock an javascript system",
   "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "lite-server",
+    "test": "karma start",
+    "build": "tsc --project . -pretty"
   },
   "repository": {
     "type": "git",
@@ -26,5 +28,20 @@
   "bugs": {
     "url": "https://github.com/lordazzi/mockit-js/issues"
   },
-  "homepage": "https://github.com/lordazzi/mockit-js#readme"
+  "homepage": "https://github.com/lordazzi/mockit-js#readme",
+  "devDependencies": {
+    "systemjs": "0.19.41",
+    "lite-server": "2.2.2",
+    "codelyzer": "2.0.1",
+    "es6-module-loader": "0.17.11",
+    "jasmine": "2.5.3",
+    "karma": "1.5.0",
+    "karma-chrome-launcher": "2.0.0",
+    "karma-jasmine": "1.1.0",
+    "karma-systemjs": "0.16.0",
+    "karma-typescript-preprocessor": "0.3.1",
+    "progress": "1.1.8",
+    "tslint": "4.4.2",
+    "typescript": "2.2.1"
+  }
 }

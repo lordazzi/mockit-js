@@ -1,3 +1,2 @@
-/docit.bat
-/jsduck.exe
-/docs/
+dist
+node_modules
