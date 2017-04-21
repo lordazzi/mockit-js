@@ -1,3 +1,4 @@
+import { MockitJs } from './mockit';
 /**
  * @author Ricardo Azzi Silva <ricardoazzi91@hotmail.com>
  * @version v3.0.0
@@ -72,7 +73,7 @@ export namespace MockitJs {
          *
          * Se o valor estiver com 'true' atribuido ele ignora todos os headers
          */
-        public ignoreRequestHeaders: Array<string> = [
+        public ignoreRequestHeaders: Array<string> | Boolean = [
             'Accept-Encoding', 'Accept-Language',
             'Host', 'Referer', 'User-Agent'
         ];
@@ -137,7 +138,7 @@ export namespace MockitJs {
 
     type ArgumentObjectAcceptTypes = File | Blob | XMLDocument | Object | Array<any> | string | number | boolean | String | Number | Boolean;
 
-    enum ArgumentObjectType {
+    enum ArgumentObjectTypeEnum {
         FILE,
         BLOB,
         XML,
@@ -147,10 +148,10 @@ export namespace MockitJs {
     }
 
     enum HttpMethodEnum {
-        POST = <any> 'POST',
-        GET = <any> 'GET',
-        DELETE = <any> 'DELETE',
-        PUT = <any> 'PUT'
+        POST = <any>'POST',
+        GET = <any>'GET',
+        DELETE = <any>'DELETE',
+        PUT = <any>'PUT'
     }
 
     interface RequestData {
@@ -160,6 +161,11 @@ export namespace MockitJs {
         method: HttpMethodEnum;
         params: ArgumentObjectAcceptTypes;
         response: string;
+    }
+
+    interface MockFile {
+        fileName: string;
+        content: string;
     }
 
     /**
@@ -173,30 +179,58 @@ export namespace MockitJs {
          * @param  {String} name
          * Nome do arquivo que será definido como aberto
          * 
-         * @param  {String} content
-         * Conteúdo do arquivo
-         * 
          * @return {Error|Boolean}
          * Se o conteúdo do arquivo conter erros, então o objeto de
          * erro é devolvido, caso contrário se retorna false
          */
         declareFileOpen(filename: string): Error | boolean;
 
-        feedOpenedFile();
+        feedOpenedFile(requestData: RequestData);
+
+        /**
+         * @method readFile
+         * Retorna o conteúdo do arquivo se baseando na url, no método http
+         * e nos parâmetros que foram enviados, se a url unida com o método
+         * http não forem encontrados no mock, o método gera um warning, se
+         * os parâmetros para aquela url não forem encontrados, ele irá retornar
+         * os registros do primeiro indice dentro da chave formada pela url e
+         * pelo método http.
+         * 
+         * @param  {string} url
+         * Url da requisição http
+         * 
+         * @param  {HttpMethodEnum} method
+         * Método http da requisição
+         * 
+         * @param  {ArgumentObject} [params]
+         * Dados que foram enviados para o servidor
+         * 
+         * @return {string}
+         * Dados de retorno da requisição que estão guardados no mock
+         */
+        readFile(url: string, method: HttpMethodEnum, param: ArgumentObject): string;
+
+        getFile(): MockFile;
+
+        createNewFile(): MockFile;
+
+        setFileVersion(): string;
+
+        getFileVersion(): string;
     }
 
-    /**
-     * Controls the storage data 
-     */
-    class StorageIO implements IO {
-        public setFileContent(content: string) {
+    // /**
+    //  * Controls the storage data 
+    //  */
+    // class StorageIO implements IO {
+    //     public setFileContent(content: string) {
 
-        }
-    }
+    //     }
+    // }
 
-    class StreamIO implements IO {
+    // class StreamIO implements IO {
 
-    }
+    // }
 
     /**
      * @class MockitJs.ArgumentObject
@@ -206,7 +240,9 @@ export namespace MockitJs {
      */
     class ArgumentObject {
 
-        private type: ArgumentObjectType = null;
+        private type: ArgumentObjectTypeEnum = null;
+
+        private headers: { [header: string]: string };
 
         public constructor(params: ArgumentObjectAcceptTypes) {
             if (params instanceof File || params instanceof Blob)
@@ -259,19 +295,22 @@ export namespace MockitJs {
         public setRequestHeader(name, value) {
             name = String(name).toLowerCase();
             value = String(value);
+            const mockitJs = MockitJs.getInstance();
 
-            if (MockitJs.ignoreRequestHeaders === true)
+            if (mockitJs.config.ignoreRequestHeaders === true)
                 return;
 
-            for (var i = 0; i < MockitJs.ignoreRequestHeaders.length; i++)
-                if (MockitJs.ignoreRequestHeaders[i].toLowerCase() == name)
+            for (var i = 0; i < (<Array<string>>mockitJs.config.ignoreRequestHeaders).length; i++)
+                if (mockitJs.config.ignoreRequestHeaders[i].toLowerCase() == name)
                     return;
 
-            headers[name] = value;
+            this.headers[name] = value;
         }
 
         public toString(): string {
-
+            let asString: { type: ArgumentObjectTypeEnum, data: string };
+            //   TODO
+            return null;
         }
     }
 
