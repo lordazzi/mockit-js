@@ -1,3 +1,7 @@
+/**
+ * @author Ricardo Azzi Silva <ricardoazzi91@hotmail.com>
+ * @version v3.0.0
+ */
 declare namespace window {
     export class XMLHttpRequest { }
     export class FormData { }
@@ -11,15 +15,8 @@ export namespace MockitJs {
     const XMLHttpRequest = window.XMLHttpRequest;
     const FormData = window.FormData;
 
-    /**
-     * @author Ricardo Azzi Silva <ricardoazzi91@hotmail.com>
-     * @version  v3.0.0
-     * @class MockitJs
-     *
-     * The lib main class
-     */
     export class MockitJs {
-        private static instance;
+        private static instance: MockitJs;
 
         public static getInstance(config?: Config) {
             if (!this.instance) {
@@ -29,21 +26,23 @@ export namespace MockitJs {
             return this.instance;
         }
 
-        private constructor(config?: Config) {
-
+        private constructor(public config?: Config) {
+            if (this.config == null) {
+                this.config = new Config();
+            }
         }
     }
 
-    export abstract class Config {
+    class Config {
         /**
- * @property {String} cacheVarName
- *
- * Algumas aplicações enviam um parâmetro para requisições http
- * para quebrar cache de arquivo, isso atrapalha o MockitJs (:
- *
- * Se sua aplicação fizer isso, você precisa definir nesta
- * propriedade o nome do parâmetro get de remoção de cache
- */
+         * @property {String} cacheVarName
+         *
+         * Algumas aplicações enviam um parâmetro para requisições http
+         * para quebrar cache de arquivo, isso atrapalha o MockitJs (:
+         *
+         * Se sua aplicação fizer isso, você precisa definir nesta
+         * propriedade o nome do parâmetro get de remoção de cache
+         */
         public cacheVarName = '_';
 
         /**
@@ -79,22 +78,61 @@ export namespace MockitJs {
         ];
     }
 
-    /**
-     * Interface for classes that will save the mock data
-     */
-    interface IO {
-
-    }
-
-    /**
-     * Controls the storage data 
-     */
-    class StorageIO implements IO {
-
-    }
-
-    class StreamIO implements IO {
-
+    enum HttpCodeEnum {
+        NO_CONNECTION = 0,
+        ACCEPTED = 202,
+        BAD_GATEWAY = 502,
+        BAD_REQUEST = 400,
+        CONFLICT = 409,
+        CONTINUE = 100,
+        CREATED = 201,
+        EXPECTATION_FAILED = 417,
+        FAILED_DEPENDENCY = 424,
+        FORBIDDEN = 403,
+        GATEWAY_TIMEOUT = 504,
+        GONE = 410,
+        HTTP_VERSION_NOT_SUPPORTED = 505,
+        INSUFFICIENT_SPACE_ON_RESOURCE = 419,
+        INSUFFICIENT_STORAGE = 507,
+        INTERNAL_SERVER_ERROR = 500,
+        LENGTH_REQUIRED = 411,
+        LOCKED = 423,
+        METHOD_FAILURE = 420,
+        METHOD_NOT_ALLOWED = 405,
+        MOVED_PERMANENTLY = 301,
+        MOVED_TEMPORARILY = 302,
+        MULTI_STATUS = 207,
+        MULTIPLE_CHOICES = 300,
+        NETWORK_AUTHENTICATION_REQUIRED = 511,
+        NO_CONTENT = 204,
+        NON_AUTHORITATIVE_INFORMATION = 203,
+        NOT_ACCEPTABLE = 406,
+        NOT_FOUND = 404,
+        NOT_IMPLEMENTED = 501,
+        NOT_MODIFIED = 304,
+        OK = 200,
+        PARTIAL_CONTENT = 206,
+        PAYMENT_REQUIRED = 402,
+        PERMANENT_REDIRECT = 308,
+        PRECONDITION_FAILED = 412,
+        PRECONDITION_REQUIRED = 428,
+        PROCESSING = 102,
+        PROXY_AUTHENTICATION_REQUIRED = 407,
+        REQUEST_HEADER_FIELDS_TOO_LARGE = 431,
+        REQUEST_TIMEOUT = 408,
+        REQUEST_TOO_LONG = 413,
+        REQUEST_URI_TOO_LONG = 414,
+        REQUESTED_RANGE_NOT_SATISFIABLE = 416,
+        RESET_CONTENT = 205,
+        SEE_OTHER = 303,
+        SERVICE_UNAVAILABLE = 503,
+        SWITCHING_PROTOCOLS = 101,
+        TEMPORARY_REDIRECT = 307,
+        TOO_MANY_REQUESTS = 429,
+        UNAUTHORIZED = 401,
+        UNPROCESSABLE_ENTITY = 422,
+        UNSUPPORTED_MEDIA_TYPE = 415,
+        USE_PROXY = 305
     }
 
     type ArgumentObjectAcceptTypes = File | Blob | XMLDocument | Object | Array<any> | string | number | boolean | String | Number | Boolean;
@@ -106,6 +144,58 @@ export namespace MockitJs {
         JSON,
         PRIMITIVE,
         NULL
+    }
+
+    enum HttpMethodEnum {
+        POST = <any> 'POST',
+        GET = <any> 'GET',
+        DELETE = <any> 'DELETE',
+        PUT = <any> 'PUT'
+    }
+
+    interface RequestData {
+        url: string;
+        status: HttpCodeEnum;
+        requestTime: number;
+        method: HttpMethodEnum;
+        params: ArgumentObjectAcceptTypes;
+        response: string;
+    }
+
+    /**
+     * Interface for classes that will save the mock data
+     */
+    interface IO {
+
+        /**
+         * Método responsável por definir o arquivo como aberto
+         * 
+         * @param  {String} name
+         * Nome do arquivo que será definido como aberto
+         * 
+         * @param  {String} content
+         * Conteúdo do arquivo
+         * 
+         * @return {Error|Boolean}
+         * Se o conteúdo do arquivo conter erros, então o objeto de
+         * erro é devolvido, caso contrário se retorna false
+         */
+        declareFileOpen(filename: string): Error | boolean;
+
+        feedOpenedFile();
+    }
+
+    /**
+     * Controls the storage data 
+     */
+    class StorageIO implements IO {
+        public setFileContent(content: string) {
+
+        }
+    }
+
+    class StreamIO implements IO {
+
     }
 
     /**
