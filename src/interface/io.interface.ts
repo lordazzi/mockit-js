@@ -1,3 +1,5 @@
+import { ArgumentInterceptor } from './../interceptor/argument.interceptor';
+import { RequestDataInterface } from './request-data.interface';
 import { MockFileInterface } from './mock-file.interface';
 import { HttpMethodEnum } from "../enum/http-method.enum";
 /**
@@ -17,7 +19,7 @@ export interface IOInterface {
      */
     declareFileOpen(filename: string): Error | boolean;
 
-    feedOpenedFile(requestData: RequestData);
+    feedOpenedFile(requestData: RequestDataInterface): void;
 
     /**
      * @method readFile
@@ -40,7 +42,7 @@ export interface IOInterface {
      * @return {string}
      * Dados de retorno da requisição que estão guardados no mock
      */
-    readFile(url: string, method: HttpMethodEnum, param: ArgumentObject): string;
+    readFile(url: string, method: HttpMethodEnum, param: ArgumentInterceptor): string;
 
     getFile(): MockFileInterface;
 

@@ -1,6 +1,7 @@
+import { FormDataInterceptor } from './form-data.interceptor';
 import { Main } from './../main';
-import { ArgumentObjectTypeEnum } from "../enum/argument-object-type.enum";
-import { ArgumentObjectAcceptTypes } from "../type/argument-object-accept.type";
+import { ArgumentTypeEnum } from "../enum/argument-type.enum";
+import { ArgumentAcceptTypes } from "../type/argument-accept.type";
 
 /**
  * @class ArgumentInterceptor
@@ -10,13 +11,13 @@ import { ArgumentObjectAcceptTypes } from "../type/argument-object-accept.type";
  */
 export class ArgumentInterceptor {
 
-    private type: ArgumentObjectTypeEnum = null;
+    private type: ArgumentTypeEnum = null;
 
     private headers: { [header: string]: string };
 
-    private requestParams: ArgumentObjectAcceptTypes;
+    private requestParams: ArgumentAcceptTypes;
 
-    public constructor(params: ArgumentObjectAcceptTypes) {
+    public constructor(params: ArgumentAcceptTypes) {
         if (params instanceof File || params instanceof Blob)
             throw "MockitJs lib does not support mock of files neither blob objects.";
 
@@ -30,20 +31,20 @@ export class ArgumentInterceptor {
             throw "unsupported data type given, MockitJs lib support only: string, number, boolean, xml, json and formdata";
     }
 
-    public isXml(param: ArgumentObjectAcceptTypes): boolean {
+    public isXml(param: ArgumentAcceptTypes): boolean {
         if (param instanceof XMLDocument) {
-            this.type = ArgumentObjectTypeEnum.XML;
+            this.type = ArgumentTypeEnum.XML;
             return true;
         }
 
         return false;
     }
 
-    public isValidJson(param: ArgumentObjectAcceptTypes): boolean {
+    public isValidJson(param: ArgumentAcceptTypes): boolean {
         if (param && (param.constructor === Object || param.constructor === Array)) {
             try {
                 JSON.stringify(param);
-                this.type = ArgumentObjectTypeEnum.JSON;
+                this.type = ArgumentTypeEnum.JSON;
                 return true;
             } catch (e) {
                 return false;
@@ -53,18 +54,18 @@ export class ArgumentInterceptor {
         }
     }
 
-    public isMockedFormData(param: ArgumentObjectAcceptTypes): boolean {
+    public isMockedFormData(param: ArgumentAcceptTypes): boolean {
         if (param instanceof FormDataInterceptor) {
-            this.type = ArgumentObjectTypeEnum.FORM;
+            this.type = ArgumentTypeEnum.FORM;
             return true;
         }
 
         return false;
     }
 
-    public isNull(param: ArgumentObjectAcceptTypes): boolean {
+    public isNull(param: ArgumentAcceptTypes): boolean {
         if (param == null) {
-            this.type = ArgumentObjectTypeEnum.NULL;
+            this.type = ArgumentTypeEnum.NULL;
             return true;
         }
 
@@ -77,7 +78,7 @@ export class ArgumentInterceptor {
             Object(param) instanceof Number ||
             Object(param) instanceof Boolean
         ) {
-            this.type = ArgumentObjectTypeEnum.NULL;
+            this.type = ArgumentTypeEnum.NULL;
             return true;
         }
 
@@ -101,23 +102,23 @@ export class ArgumentInterceptor {
 
     public toString(): string {
         let asString: {
-            type: ArgumentObjectTypeEnum,
+            type: ArgumentTypeEnum,
             data: string | number | boolean,
             headers: { [header: string]: string }
         };
         asString = { type: this.type, data: null, headers: {} };
 
         switch (this.type) {
-            case ArgumentObjectTypeEnum.JSON:
+            case ArgumentTypeEnum.JSON:
                 asString.data = JSON.stringify(this.requestParams);
                 break;
-            case ArgumentObjectTypeEnum.FORM:
+            case ArgumentTypeEnum.FORM:
                 asString.data = String(this.requestParams);
                 break;
-            case ArgumentObjectTypeEnum.XML:
+            case ArgumentTypeEnum.XML:
                 asString.data = (new XMLSerializer).serializeToString(<XMLDocument>this.requestParams);
                 break;
-            case ArgumentObjectTypeEnum.PRIMITIVE:
+            case ArgumentTypeEnum.PRIMITIVE:
                 asString.data = <string | number | boolean>this.requestParams;
                 break;
         }

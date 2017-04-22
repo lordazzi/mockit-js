@@ -1,3 +1,3 @@
-export class FormDataReader {
+export class FormDataInterceptor {
 
 }
