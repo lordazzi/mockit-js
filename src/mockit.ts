@@ -144,7 +144,8 @@ export namespace MockitJs {
         XML,
         JSON,
         PRIMITIVE,
-        NULL
+        NULL,
+        FORM
     }
 
     enum HttpMethodEnum {
@@ -244,29 +245,37 @@ export namespace MockitJs {
 
         private headers: { [header: string]: string };
 
+        private requestParams: ArgumentObjectAcceptTypes;
+
         public constructor(params: ArgumentObjectAcceptTypes) {
             if (params instanceof File || params instanceof Blob)
                 throw "MockitJs lib does not support mock of files neither blob objects.";
 
-            // isXml = me.isXml(params);
-            // isValidJson = me.isValidJson(params);
-            // isMockedFormData = me.isMockedFormData(params);
-            // isNull = me.isNull(params);
-            // isLiteral = me.isLiteral(params);
+            const isXml = this.isXml(params);
+            const isValidJson = this.isValidJson(params);
+            const isMockedFormData = this.isMockedFormData(params);
+            const isNull = this.isNull(params);
+            const isLiteral = this.isLiteral(params);
 
-            // if (!isXml && !isValidJson && !isMockedFormData && !isNull && !isLiteral)
-            //     throw "o sistema não suporta dados diferentes dos tipos: string, number, boolean, xml, json, formdata e null";
+            if (!isXml && !isValidJson && !isMockedFormData && !isNull && !isLiteral)
+                throw "o sistema não suporta dados diferentes dos tipos: string, number, boolean, xml, json, formdata e null";
 
         }
 
         public isXml(param: ArgumentObjectAcceptTypes): boolean {
-            return param instanceof XMLDocument;
+            if (param instanceof XMLDocument) {
+                this.type = ArgumentObjectTypeEnum.XML;
+                return true;
+            }
+            
+            return false;
         }
 
         public isValidJson(param: ArgumentObjectAcceptTypes): boolean {
             if (param && (param.constructor === Object || param.constructor === Array)) {
                 try {
                     JSON.stringify(param);
+                    this.type = ArgumentObjectTypeEnum.JSON;
                     return true;
                 } catch (e) {
                     return false;
@@ -277,19 +286,34 @@ export namespace MockitJs {
         }
 
         public isMockedFormData(param: ArgumentObjectAcceptTypes): boolean {
-            return param instanceof FormDataReader;
+            if (param instanceof FormDataReader) {
+                this.type = ArgumentObjectTypeEnum.FORM;
+                return true;
+            }
+            
+            return false;
         }
 
         public isNull(param: ArgumentObjectAcceptTypes): boolean {
-            return (param == null);
+            if (param == null) {
+                this.type = ArgumentObjectTypeEnum.NULL;
+                return true;
+            }
+            
+            return false;
         }
 
         public isLiteral(param): boolean {
-            return (
+            if (
                 Object(param) instanceof String ||
                 Object(param) instanceof Number ||
                 Object(param) instanceof Boolean
-            );
+            ) {
+                this.type = ArgumentObjectTypeEnum.NULL;
+                return true;
+            }
+            
+            return false;
         }
 
         public setRequestHeader(name, value) {
@@ -308,9 +332,30 @@ export namespace MockitJs {
         }
 
         public toString(): string {
-            let asString: { type: ArgumentObjectTypeEnum, data: string };
-            //   TODO
-            return null;
+            let asString: {
+                type: ArgumentObjectTypeEnum,
+                data: string | number | boolean,
+                headers: { [header: string]: string }
+            };
+            asString = { type: this.type, data: null, headers: {} };
+
+            switch (this.type) {
+                case ArgumentObjectTypeEnum.JSON:
+                    asString.data = JSON.stringify(this.requestParams);
+                    break;
+                case ArgumentObjectTypeEnum.FORM:
+                    asString.data = String(this.requestParams);
+                    break;
+                case ArgumentObjectTypeEnum.XML:
+                    asString.data = (new XMLSerializer).serializeToString(<XMLDocument> this.requestParams);
+                    break;
+                case ArgumentObjectTypeEnum.PRIMITIVE:
+                    asString.data = <string | number | boolean> this.requestParams;
+                    break;
+            }
+
+            asString.headers = this.headers;
+            return JSON.stringify(asString);
         }
     }
 
