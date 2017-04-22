@@ -1,3 +1,4 @@
+import { IOInterface } from './../interface/io.interface';
 /**
  * Controls the storage data 
  */

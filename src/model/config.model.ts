@@ -1,4 +1,4 @@
-export class Config {
+export class ConfigModel {
 
     /**
      * @property {String} cacheVarName
