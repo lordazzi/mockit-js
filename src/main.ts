@@ -1,13 +1,28 @@
-import { Calc } from './calc';
+import { Config } from './config';
+import { window } from './environment';
 
-new class Main {
-	public calc: Calc;
+export class Main {
+	private static instance: Main;
 
-	construtor() {
-		this.calc = new Calc();
-		console.info(`Sum 1 and 1: ${this.calc.sum(1, 1)}`);
-		console.info(`Subtract 1 of 2: ${this.calc.subtract(2, 1)}`);
-		console.info(`Divide 4 by 2: ${this.calc.divide(4, 2)}`);
-		console.info(`Multiply 2 by 2: ${this.calc.multiply(2, 2)}`);
+	/**
+	 * Backup of the original xhr prototype and formdata original
+	 */
+	public XMLHttpRequest: any;
+	public FormData: any;
+
+	public static getInstance(config?: Config) {
+		if (!this.instance) {
+			this.instance = new Main(config);
+			this.instance.XMLHttpRequest = window.XMLHttpRequest;
+			this.instance.FormData = window.FormData;
+		}
+
+		return this.instance;
+	}
+
+	private constructor(public config?: Config) {
+		if (this.config == null) {
+			this.config = new Config();
+		}
 	}
 }
