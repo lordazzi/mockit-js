@@ -30,8 +30,6 @@
   },
   "homepage": "https://github.com/lordazzi/mockit-js#readme",
   "devDependencies": {
-    "systemjs": "0.19.41",
-    "lite-server": "2.2.2",
     "codelyzer": "2.0.1",
     "es6-module-loader": "0.17.11",
     "jasmine": "2.5.3",
@@ -40,8 +38,13 @@
     "karma-jasmine": "1.1.0",
     "karma-systemjs": "0.16.0",
     "karma-typescript-preprocessor": "0.3.1",
+    "lite-server": "2.2.2",
     "progress": "1.1.8",
+    "systemjs": "0.19.41",
     "tslint": "4.4.2",
-    "typescript": "2.2.1"
+    "typescript": "2.2.2"
+  },
+  "dependencies": {
+    "socket.io": "1.7.3"
   }
 }

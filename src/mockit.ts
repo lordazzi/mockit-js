@@ -1,83 +1,14 @@
-import { MockitJs } from './mockit';
 /**
  * @author Ricardo Azzi Silva <ricardoazzi91@hotmail.com>
  * @version v3.0.0
  */
-declare namespace window {
-    export class XMLHttpRequest { }
-    export class FormData { }
-}
+
 
 export namespace MockitJs {
 
-    /**
-     * Backup of the original xhr prototype and formdata original
-     */
-    const XMLHttpRequest = window.XMLHttpRequest;
-    const FormData = window.FormData;
+    
 
-    export class MockitJs {
-        private static instance: MockitJs;
-
-        public static getInstance(config?: Config) {
-            if (!this.instance) {
-                this.instance = new MockitJs(config);
-            }
-
-            return this.instance;
-        }
-
-        private constructor(public config?: Config) {
-            if (this.config == null) {
-                this.config = new Config();
-            }
-        }
-    }
-
-    class Config {
-        /**
-         * @property {String} cacheVarName
-         *
-         * Algumas aplicações enviam um parâmetro para requisições http
-         * para quebrar cache de arquivo, isso atrapalha o MockitJs (:
-         *
-         * Se sua aplicação fizer isso, você precisa definir nesta
-         * propriedade o nome do parâmetro get de remoção de cache
-         */
-        public cacheVarName = '_';
-
-        /**
-         * @property {Boolean} syncronizeApp
-         *
-         * Força toda a aplicação trabalhar de forma sincrona (pelo menos
-         * ao que se refere a requisições http)
-         */
-        public syncronizeApp = false;
-
-        /**
-         * @property {Boolean} turnAllRequestTimesIntoZero
-         *
-         * Semelhante ao {#syncronizeApp} mas não deixa as requisições sincronas,
-         * mas deixa elas com um tempo muito próximo a 0 milisegundos, para evitar
-         * ficar esperando o tempo de cada requisição quando os testes unitários
-         * forem executados
-         */
-        public turnAllRequestTimesIntoZero = false;
-
-        /**
-         * @property {String[]|Boolean} ignoreRequestHeaders
-         *
-         * Conjunto de nomes de headers de requisição que não devem ser
-         * interpretados pela ferramenta de mock como um parâmetro enviado
-         * para o servidor.
-         *
-         * Se o valor estiver com 'true' atribuido ele ignora todos os headers
-         */
-        public ignoreRequestHeaders: Array<string> | Boolean = [
-            'Accept-Encoding', 'Accept-Language',
-            'Host', 'Referer', 'User-Agent'
-        ];
-    }
+    
 
     enum HttpCodeEnum {
         NO_CONNECTION = 0,
@@ -267,7 +198,7 @@ export namespace MockitJs {
                 this.type = ArgumentObjectTypeEnum.XML;
                 return true;
             }
-            
+
             return false;
         }
 
@@ -290,7 +221,7 @@ export namespace MockitJs {
                 this.type = ArgumentObjectTypeEnum.FORM;
                 return true;
             }
-            
+
             return false;
         }
 
@@ -299,7 +230,7 @@ export namespace MockitJs {
                 this.type = ArgumentObjectTypeEnum.NULL;
                 return true;
             }
-            
+
             return false;
         }
 
@@ -312,7 +243,7 @@ export namespace MockitJs {
                 this.type = ArgumentObjectTypeEnum.NULL;
                 return true;
             }
-            
+
             return false;
         }
 
@@ -347,10 +278,10 @@ export namespace MockitJs {
                     asString.data = String(this.requestParams);
                     break;
                 case ArgumentObjectTypeEnum.XML:
-                    asString.data = (new XMLSerializer).serializeToString(<XMLDocument> this.requestParams);
+                    asString.data = (new XMLSerializer).serializeToString(<XMLDocument>this.requestParams);
                     break;
                 case ArgumentObjectTypeEnum.PRIMITIVE:
-                    asString.data = <string | number | boolean> this.requestParams;
+                    asString.data = <string | number | boolean>this.requestParams;
                     break;
             }
 
