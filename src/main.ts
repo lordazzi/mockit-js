@@ -22,6 +22,8 @@ export class Main {
 
 	private hasNetworkConnection: boolean = true;
 
+	public version: string = '3.0.0';
+
 	public IO: IOInterface;
 
 	public static getInstance(config?: ConfigModel) {

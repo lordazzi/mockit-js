@@ -3,10 +3,11 @@ import { MockitJs, Main } from './../main';
 import { HttpReadyStateEnum } from "../enum/http-ready-state.enum";
 import { HttpCodeEnum } from "../enum/http-code.enum";
 import { ArgumentAcceptType } from "../type/argument-accept.type";
+import { HttpMethodType } from "../type/http-method.type";
 
 export class FakeRequestInterceptor extends MockitJs.NativeRequest {
     private async = true;
-    private method = 'GET';
+    private method: HttpMethodType = 'GET';
     private headers: { [header: string]: string } = {};
     private events: { [event: string]: Array<EventListenerOrEventListenerObject> } = {};
 
@@ -152,7 +153,7 @@ export class FakeRequestInterceptor extends MockitJs.NativeRequest {
         return this.headers[header] || '';
     };
 
-    public open(method: string, url: string, async?: boolean, user?: string, password?: string) {
+    public open(method: HttpMethodType, url: string, async?: boolean, user?: string, password?: string) {
         this.async = async;
         this.method = method;
         this.responseURL = url;

@@ -2,7 +2,8 @@ import { MockFileInterface } from './../interface/mock-file.interface';
 import { ArgumentInterceptor } from './../interceptor/argument.interceptor';
 import { RequestDataInterface } from './../interface/request-data.interface';
 import { IOInterface } from './../interface/io.interface';
-import { HttpMethodEnum } from "../enum/http-method.enum";
+import { HttpMethodType } from "../type/http-method.type";
+import { MockResponseType } from "../type/mock-response.type";
 
 export class StreamIOService implements IOInterface {
     private static instance: StreamIOService;
@@ -27,7 +28,11 @@ export class StreamIOService implements IOInterface {
 
     }
 
-    public readFile(url: string, method: HttpMethodEnum, param: ArgumentInterceptor): string {
+    public readFile(url: string, method: HttpMethodType, param: ArgumentInterceptor): MockResponseType {
+        return null;
+    }
+
+    public hasFile(): boolean {
         return null;
     }
 

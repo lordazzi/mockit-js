@@ -1,12 +1,12 @@
+import { ArgumentInterceptor } from './../interceptor/argument.interceptor';
 import { HttpCodeEnum } from "../enum/http-code.enum";
-import { HttpMethodEnum } from "../enum/http-method.enum";
-import { ArgumentAcceptType } from "../type/argument-accept.type";
+import { HttpMethodType } from "../type/http-method.type";
 
 export interface RequestDataInterface {
     url: string;
     status: HttpCodeEnum;
     requestTime: number;
-    method: HttpMethodEnum;
-    params: ArgumentAcceptType;
+    method: HttpMethodType;
+    params: ArgumentInterceptor;
     response: string;
 }

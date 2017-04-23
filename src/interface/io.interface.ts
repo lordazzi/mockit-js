@@ -2,6 +2,8 @@ import { ArgumentInterceptor } from './../interceptor/argument.interceptor';
 import { RequestDataInterface } from './request-data.interface';
 import { MockFileInterface } from './mock-file.interface';
 import { HttpCodeEnum } from "../enum/http-code.enum";
+import { HttpMethodType } from "../type/http-method.type";
+import { MockResponseType } from "../type/mock-response.type";
 /**
  * Interface for classes that will save the mock data
  */
@@ -12,13 +14,33 @@ export interface IOInterface {
      * 
      * @param  {String} name
      * Nome do arquivo que será definido como aberto
-     * 
-     * @return {Error|Boolean}
-     * Se o conteúdo do arquivo conter erros, então o objeto de
-     * erro é devolvido, caso contrário se retorna false
      */
-    declareFileOpen(filename: string): Error | boolean;
+    declareFileOpen(filename: string, content?: string): void;
 
+    /**
+	 * @method feedOpenedFile
+	 * 
+	 * Alimenta o arquivo aberto com mais informações de mock
+	 *
+	 * @param {RequestDataInterface} requestData
+	 * Parâmetros necessários para salvar uma entrada e saída no mock
+	 * 
+	 * @param  {String} requestData.url
+	 * Url para qual a requisição http foi direcionada
+	 *
+	 * @param {Number} requestData.status
+	 * Código que representa quando o status que o servidor respondeu
+	 * a requisição enviada
+	 *
+	 * @param {Number} requestData.requestTime
+	 * Quanto tempo a requisição demorou para ser executada
+	 *
+	 * @param {String} [requestData.method="GET"]
+	 * Método http que a requisição foi chamada (GET, POST, PUT, DELETE, OPTIONS)
+	 * 
+	 * @param {String} [requestData.params="null"]
+	 * Parâmetro que estão sendo enviados para o servidor
+	 */
     feedOpenedFile(requestData: RequestDataInterface): void;
 
     /**
@@ -33,15 +55,17 @@ export interface IOInterface {
      * @param  {string} url
      * Url da requisição http
      * 
-     * @param  {HttpMethodEnum} method
+     * @param  {HttpMethodType} method
      * Método http da requisição
      * 
      * @param  {ArgumentObject} [params]
      * Dados que foram enviados para o servidor
      */
-    readFile(url: string, method: string, param: ArgumentInterceptor): { response: string, status: HttpCodeEnum, requestTime: number };
+    readFile(url: string, method: HttpMethodType, param: ArgumentInterceptor): MockResponseType;
 
     getFile(): MockFileInterface;
+
+    hasFile(): boolean;
 
     createNewFile(): MockFileInterface;
 
