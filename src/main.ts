@@ -28,9 +28,9 @@ export class Main {
 		if (!this.instance) {
 			this.instance = new Main(config);
 			if (config.IOType == IOTypeEnum.STORAGE) {
-				this.instance.IO = <IOInterface> StorageIOService.getInstance();
+				this.instance.IO = StorageIOService.getInstance();
 			} else if (config.IOType == IOTypeEnum.STREAM) {
-				this.instance.IO = <IOInterface> StreamIOService.getInstance();
+				this.instance.IO = StreamIOService.getInstance();
 
 			}
 		}
