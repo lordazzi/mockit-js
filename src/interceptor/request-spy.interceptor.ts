@@ -3,6 +3,7 @@ import { HttpReadyStateEnum } from "../enum/http-ready-state.enum";
 import { MockitJs, Main } from './../main';
 import { ArgumentAcceptType } from "../type/argument-accept.type";
 import { HttpCodeEnum } from "../enum/http-code.enum";
+import { HttpMethodType } from "../type/http-method.type";
 
 export class RequestSpyInterceptor extends MockitJs.NativeRequest {
 
@@ -12,7 +13,7 @@ export class RequestSpyInterceptor extends MockitJs.NativeRequest {
 
     private timeWhenSend: number;
 
-    private method: string;
+    private method: HttpMethodType;
 
     public status: HttpCodeEnum;
 
@@ -35,8 +36,8 @@ export class RequestSpyInterceptor extends MockitJs.NativeRequest {
                 //	salvando requisição
                 Main.getInstance().IO.feedOpenedFile({
                     url: url,
-                    method: this.method,
-                    params: String(this.data),
+                    method: <HttpMethodType> this.method,
+                    params: this.data,
                     response: this.responseText,
                     status: this.status,
                     requestTime: ((new Date).getTime() - this.timeWhenSend)
@@ -84,7 +85,7 @@ export class RequestSpyInterceptor extends MockitJs.NativeRequest {
      * para ler o método que a requisição irá utilizar
      */
     public open(method: string, url: string, async?: boolean, user?: string, password?: string) {
-        this.method = method;
+        this.method = <HttpMethodType> method;
         return super.open(String(method), url, async, user, password);
     }
 }
