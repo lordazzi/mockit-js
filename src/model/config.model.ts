@@ -52,4 +52,20 @@ export class ConfigModel {
      * socket para um arquivo em um servidor remoto
      */
     public IOType: IOTypeEnum = IOTypeEnum.STORAGE;
+
+    /**
+     * @property {Array<string>|boolean} ignorePath
+     * 
+     * Não efetua o mock dos caminhos contidos no array, se o valor da configuração
+     * for false, então nenhum caminho será ignorado
+     */// TODO: fazer essa configuração funcionar de fato
+    public ignorePath: Array<string>|boolean = false;
+
+    /**
+     * @property {Array<string>|boolean} mockSelectedPaths
+     * 
+     * Efetua unicamente o mock dos caminhos contidos neste array, se a configuração
+     * estiver definida como false, então todos os caminhos serão mocado
+     */// TODO: fazer essa configuração funcionar de fato
+    public mockSelectedPaths: Array<string>|boolean = false;
 }
