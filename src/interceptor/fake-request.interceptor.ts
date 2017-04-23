@@ -1,12 +1,14 @@
+import { ArgumentInterceptor } from './argument.interceptor';
 import { MockitJs, Main } from './../main';
 import { HttpReadyStateEnum } from "../enum/http-ready-state.enum";
 import { HttpCodeEnum } from "../enum/http-code.enum";
+import { ArgumentAcceptType } from "../type/argument-accept.type";
 
 export class FakeRequestInterceptor extends MockitJs.NativeRequest {
     private async = true;
     private method = 'GET';
     private headers: { [header: string]: string } = {};
-    private events: { [event: string]: Array<Function> } = {};
+    private events: { [event: string]: Array<EventListenerOrEventListenerObject> } = {};
 
     public DONE = 4;
     public LOADING = 3;
@@ -20,85 +22,86 @@ export class FakeRequestInterceptor extends MockitJs.NativeRequest {
     private settedMimeType: string = 'text/plain';
     public responseType: string = '';
     public statusText: string = '';
-    public responseXML: string = '';
+    public responseXML: Document = null;
     public responseURL: string = '';
     public withCredentials = false;
     public timeout = 0;
+    public upload: XMLHttpRequestUpload = null;
 
     public response = '';
     public responseText = '';
 
-    public set onabort(value: Function) {
+    public set onabort(value: HttpEventFunctionType) {
         this.addEventListener('abort', value);
     }
 
-    public get onabort(): Function {
+    public get onabort(): HttpEventFunctionType {
         return () => {
             this.fireEvent('abort', [this]);
         };
     }
 
-    public set onerror(value: Function) {
+    public set onerror(value: HttpEventFunctionType) {
         this.addEventListener('error', value);
     }
 
-    public get onerror(): Function {
+    public get onerror(): HttpEventFunctionType {
         return () => {
             this.fireEvent('error', [this]);
         };
     }
 
-    public set onload(value: Function) {
+    public set onload(value: HttpEventFunctionType) {
         this.addEventListener('load', value);
     }
 
-    public get onload(): Function {
+    public get onload(): HttpEventFunctionType {
         return () => {
             this.fireEvent('load', [this]);
         };
     }
 
-    public set onloadend(value: Function) {
+    public set onloadend(value: HttpEventFunctionType) {
         this.addEventListener('loadend', value);
     }
 
-    public get onloadend(): Function {
+    public get onloadend(): HttpEventFunctionType {
         return () => {
             this.fireEvent('loadend', [this]);
         };
     }
 
-    public set onloadstart(value: Function) {
+    public set onloadstart(value: HttpEventFunctionType) {
         this.addEventListener('loadstart', value);
     }
 
-    public get onloadstart(): Function {
+    public get onloadstart(): HttpEventFunctionType {
         return () => {
             this.fireEvent('loadstart', [this]);
         };
     }
 
-    public set onprogress(value: Function) {
+    public set onprogress(value: HttpEventFunctionType) {
         this.addEventListener('progress', value);
     }
 
-    public get onprogress(): Function {
+    public get onprogress(): HttpEventFunctionType {
         return () => {
             this.fireEvent('progress', [this]);
         };
     }
 
-    public set ontimeout(value: Function) {
+    public set ontimeout(value: HttpEventFunctionType) {
         this.addEventListener('timeout', value);
     }
 
-    public get ontimeout(): Function {
+    public get ontimeout(): HttpEventFunctionType {
         return () => {
             this.fireEvent('timeout', [this]);
         };
     }
 
-    public set onreadystatechange(value: Function) {
+    public set onreadystatechange(value: HttpEventFunctionType) {
         this.addEventListener('readystatechange', value);
     }
 
@@ -106,10 +109,6 @@ export class FakeRequestInterceptor extends MockitJs.NativeRequest {
         return () => {
             this.fireEvent('readystatechange', [this]);
         };
-    }
-
-    public set upload(value: Function) {
-        this.addEventListener('readystatechange', value);
     }
 
     //  TODO: abortar requisição
@@ -126,7 +125,7 @@ export class FakeRequestInterceptor extends MockitJs.NativeRequest {
             for (var i = 0; i < this.events[eventName].length; i++) {
                 var callable = this.events[eventName][i];
                 if (Object(callable) instanceof Function)
-                    callable();
+                    (<Function> callable)(); // TODO: garantir o funcionamento natural
             }
         }
     };
@@ -159,47 +158,46 @@ export class FakeRequestInterceptor extends MockitJs.NativeRequest {
         this.responseURL = url;
     };
 
-    public addEventListener(eventName: string, call: Function) {
+    public addEventListener(eventName: string, call: EventListenerOrEventListenerObject, useCapture?: boolean) {
         if (!this.events[eventName])
             this.events[eventName] = [];
 
         this.events[eventName].push(call);
     };
 
-    public send(params) {
-        var me = this;
+    public send(params: ArgumentAcceptType) {
+        const main = Main.getInstance();
+        var data = main.IO.readFile(this.responseURL, this.method, new ArgumentInterceptor(params));
 
-        var sending() {
-            if (!Main.getInstance().isNetworkConnectable()) {
-                me.readyState = HttpReadyStateEnum.DONE;
-                me.status = HttpCodeEnum.NO_CONNECTION;
-                me.response = "";
-                me.responseText = "";
+        const sending = () => {
+            if (!main.isNetworkConnectable()) {
+                this.readyState = HttpReadyStateEnum.DONE;
+                this.status = HttpCodeEnum.NO_CONNECTION;
+                this.response = "";
+                this.responseText = "";
             } else {
-                me.response = data.response;
-                me.responseText = data.response;
-                me.readyState = HttpReadyStateEnum.DONE;
-                me.status = data.status;
+                this.response = data.response;
+                this.responseText = data.response;
+                this.readyState = HttpReadyStateEnum.DONE;
+                this.status = data.status;
             }
 
-            var mainResponseCode = Math.floor(me.status / 100);
-            if (me.status === 0 || mainResponseCode === 4 || mainResponseCode === 5)
-                me.onerror();
+            var mainResponseCode = Math.floor(this.status / 100);
+            if (this.status === 0 || mainResponseCode === 4 || mainResponseCode === 5)
+                (<Function>this.onerror)();
 
-            me.onreadystatechange(me);
+            (<Function>this.onreadystatechange)();
         };
 
-        var data = MockitJs.IO.readFile(me.responseURL, method, new MockitJs.ArgumentObject(params));
-
         // tratar de forma adequada o objeto de argumentos
-        if (async || MockitJs.syncronizeApp) {
+        if (this.async || main.config.syncronizeApp) {
             sending();
-        } else if (MockitJs.turnAllRequestTimesIntoZero) {
-            setTimeout(function () {
+        } else if (main.config.turnAllRequestTimesIntoZero) {
+            setTimeout(() => {
                 sending();
             }, 0);
         } else {
-            setTimeout(function () {
+            setTimeout(() => {
                 sending();
             }, data.requestTime);
         }

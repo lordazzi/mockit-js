@@ -5,6 +5,7 @@
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
         "module": "system",
+        "target": "es5",
         "outDir": "./dist/",
         "noImplicitAny": true,
         "preserveConstEnums": true,

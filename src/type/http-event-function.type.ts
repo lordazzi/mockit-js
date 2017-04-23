@@ -1,0 +1,1 @@
+type HttpEventFunctionType = (this: XMLHttpRequest, ev: Event) => any;

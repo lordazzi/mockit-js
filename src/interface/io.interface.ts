@@ -1,7 +1,7 @@
 import { ArgumentInterceptor } from './../interceptor/argument.interceptor';
 import { RequestDataInterface } from './request-data.interface';
 import { MockFileInterface } from './mock-file.interface';
-import { HttpMethodEnum } from "../enum/http-method.enum";
+import { HttpCodeEnum } from "../enum/http-code.enum";
 /**
  * Interface for classes that will save the mock data
  */
@@ -38,11 +38,8 @@ export interface IOInterface {
      * 
      * @param  {ArgumentObject} [params]
      * Dados que foram enviados para o servidor
-     * 
-     * @return {string}
-     * Dados de retorno da requisição que estão guardados no mock
      */
-    readFile(url: string, method: HttpMethodEnum, param: ArgumentInterceptor): string;
+    readFile(url: string, method: string, param: ArgumentInterceptor): { response: string, status: HttpCodeEnum, requestTime: number };
 
     getFile(): MockFileInterface;
 
