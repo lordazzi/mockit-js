@@ -256,34 +256,8 @@ MockitJs.ignoreRequestHeaders = [
 	'Host', 'Referer', 'User-Agent'
 ];
 
-/**
- * @method removeNetworkCable
- * 
- * Faz com que as requisições mocadas comecem a lençar erro 0, simbolizando
- * a ausência de conexão com o servidor.
- *
- * Esta funcionalidade serve para mocar situações onde um problema na rede
- * ou no servidor possa lançar um problema em uma situação onde um conjunto
- * de serviços que se interdependem estão sendo consumidos pelo front end e
- * um deles falha.
- */
-MockitJs.removeNetworkCable = function(){
-	MockitJs.hasNetworkConnection.networkCableStatus = false;
-};
 
-/**
- * @method plugNetworkCable
- * 
- * Reconecta o cabo com a rede ficticia
- * 
- * Esta funcionalidade serve para mocar situações onde um problema na rede
- * ou no servidor possa lançar um problema em uma situação onde um conjunto
- * de serviços que se interdependem estão sendo consumidos pelo front end e
- * um deles falha.
- */
-MockitJs.plugNetworkCable = function(){
-	MockitJs.hasNetworkConnection.networkCableStatus = true;
-};
+
 
 /**
  * @method hasNetworkConnection

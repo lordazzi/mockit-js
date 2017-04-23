@@ -1,7 +1,7 @@
 import { FormDataInterceptor } from './form-data.interceptor';
 import { Main } from './../main';
 import { ArgumentTypeEnum } from "../enum/argument-type.enum";
-import { ArgumentAcceptTypes } from "../type/argument-accept.type";
+import { ArgumentAcceptType } from "../type/argument-accept.type";
 
 /**
  * @class ArgumentInterceptor
@@ -15,9 +15,9 @@ export class ArgumentInterceptor {
 
     private headers: { [header: string]: string };
 
-    private requestParams: ArgumentAcceptTypes;
+    private requestParams: ArgumentAcceptType;
 
-    public constructor(params: ArgumentAcceptTypes) {
+    public constructor(params: ArgumentAcceptType) {
         if (params instanceof File || params instanceof Blob)
             throw "MockitJs lib does not support mock of files neither blob objects.";
 
@@ -31,7 +31,7 @@ export class ArgumentInterceptor {
             throw "unsupported data type given, MockitJs lib support only: string, number, boolean, xml, json and formdata";
     }
 
-    public isXml(param: ArgumentAcceptTypes): boolean {
+    public isXml(param: ArgumentAcceptType): boolean {
         if (param instanceof XMLDocument) {
             this.type = ArgumentTypeEnum.XML;
             return true;
@@ -40,7 +40,7 @@ export class ArgumentInterceptor {
         return false;
     }
 
-    public isValidJson(param: ArgumentAcceptTypes): boolean {
+    public isValidJson(param: ArgumentAcceptType): boolean {
         if (param && (param.constructor === Object || param.constructor === Array)) {
             try {
                 JSON.stringify(param);
@@ -54,7 +54,7 @@ export class ArgumentInterceptor {
         }
     }
 
-    public isMockedFormData(param: ArgumentAcceptTypes): boolean {
+    public isMockedFormData(param: ArgumentAcceptType): boolean {
         if (param instanceof FormDataInterceptor) {
             this.type = ArgumentTypeEnum.FORM;
             return true;
@@ -63,7 +63,7 @@ export class ArgumentInterceptor {
         return false;
     }
 
-    public isNull(param: ArgumentAcceptTypes): boolean {
+    public isNull(param: ArgumentAcceptType): boolean {
         if (param == null) {
             this.type = ArgumentTypeEnum.NULL;
             return true;

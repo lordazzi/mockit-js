@@ -24,7 +24,7 @@ export class Main {
 
 	public IO: IOInterface;
 
-	public static getInstance(config: ConfigModel) {
+	public static getInstance(config?: ConfigModel) {
 		if (!this.instance) {
 			this.instance = new Main(config);
 			if (config.IOType == IOTypeEnum.STORAGE) {
@@ -38,7 +38,7 @@ export class Main {
 		return this.instance;
 	}
 
-	private constructor(public config: ConfigModel) {
+	private constructor(public config?: ConfigModel) {
 		if (this.config == null) {
 			this.config = new ConfigModel();
 		}
@@ -71,5 +71,9 @@ export class Main {
 	 */
 	public plugNetworkCable(): void {
 		this.hasNetworkConnection = true;
+	}
+
+	public isNetworkConnectable(): boolean {
+		return this.hasNetworkConnection;
 	}
 }
