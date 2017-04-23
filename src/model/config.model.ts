@@ -1,3 +1,5 @@
+import { IOTypeEnum } from "../enum/IOType.enum";
+
 export class ConfigModel {
 
     /**
@@ -42,4 +44,12 @@ export class ConfigModel {
         'Accept-Encoding', 'Accept-Language',
         'Host', 'Referer', 'User-Agent'
     ];
+
+    /**
+     * @property {IOTypeEnum} IOType
+     * 
+     * Diz se os dados serão salvos no session storage ou enviados via
+     * socket para um arquivo em um servidor remoto
+     */
+    public IOType: IOTypeEnum = IOTypeEnum.STORAGE;
 }

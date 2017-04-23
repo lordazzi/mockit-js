@@ -1,27 +1,44 @@
+import { StreamIOService } from './service/stream-io.service';
+import { StorageIOService } from './service/storage-io.service';
+import { IOInterface } from './interface/io.interface';
 import { ConfigModel } from './model/config.model';
-import { window } from './environment';
+import { IOTypeEnum } from "./enum/IOType.enum";
+
+export namespace MockitJs {
+	export class NativeRequest extends XMLHttpRequest {
+
+	}
+
+	export class NativeFormData extends FormData {
+
+	}
+}
+
+(<any>MockitJs).NativeRequest = XMLHttpRequest;
+(<any>MockitJs).NativeFormData = FormData;
 
 export class Main {
 	private static instance: Main;
 
-	/**
-	 * Backup of the original xhr prototype and formdata original
-	 */
-	public XMLHttpRequest: any;
-	public FormData: any;
 	private hasNetworkConnection: boolean = true;
 
-	public static getInstance(config?: ConfigModel) {
+	public IO: IOInterface;
+
+	public static getInstance(config: ConfigModel) {
 		if (!this.instance) {
 			this.instance = new Main(config);
-			this.instance.XMLHttpRequest = window.XMLHttpRequest;
-			this.instance.FormData = window.FormData;
+			if (config.IOType == IOTypeEnum.STORAGE) {
+				this.instance.IO = <IOInterface> StorageIOService.getInstance();
+			} else if (config.IOType == IOTypeEnum.STREAM) {
+				this.instance.IO = <IOInterface> StreamIOService.getInstance();
+
+			}
 		}
 
 		return this.instance;
 	}
 
-	private constructor(public config?: ConfigModel) {
+	private constructor(public config: ConfigModel) {
 		if (this.config == null) {
 			this.config = new ConfigModel();
 		}
