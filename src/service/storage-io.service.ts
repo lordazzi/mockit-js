@@ -7,11 +7,12 @@ import { IOInterface } from './../interface/io.interface';
 import { HttpMethodType } from "../type/http-method.type";
 import { MockResponseType } from "../type/mock-response.type";
 import { HttpCodeEnum } from "../enum/http-code.enum";
+import { IOService } from "./io.service";
 
 /**
  * Controls the storage data 
  */
-export class StorageIOService implements IOInterface {
+export class StorageIOService extends IOService implements IOInterface {
 
     private static instance: StorageIOService;
 
@@ -24,7 +25,7 @@ export class StorageIOService implements IOInterface {
     }
 
     private constructor() {
-
+        super();
     }
 
     public declareFileOpen(filename: string, content: string): void {
@@ -150,7 +151,7 @@ export class StorageIOService implements IOInterface {
             }
         };
 
-        localStorage.mockitjs_filename = '';
+        localStorage.mockitjs_filename = this.generateFileName();
         localStorage.mockitjs_filecontent = JSON.stringify(emptyFile);
 
         return this.getFile();
@@ -173,6 +174,7 @@ export class StorageIOService implements IOInterface {
 
     public getFileVersion(): string {
         var json = JSON.parse(localStorage.mockitjs_filecontent);
-		return String(new Date(json.fileVersion));
+	
+    	return String(new Date(json.fileVersion));
     }
 }

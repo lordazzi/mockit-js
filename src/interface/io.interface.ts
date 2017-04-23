@@ -4,6 +4,7 @@ import { MockFileInterface } from './mock-file.interface';
 import { HttpCodeEnum } from "../enum/http-code.enum";
 import { HttpMethodType } from "../type/http-method.type";
 import { MockResponseType } from "../type/mock-response.type";
+
 /**
  * Interface for classes that will save the mock data
  */
@@ -72,4 +73,6 @@ export interface IOInterface {
     setFileVersion(): string;
 
     getFileVersion(): string;
+
+    generateFileName(): string;
 }
