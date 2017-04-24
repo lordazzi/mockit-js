@@ -1,4 +1,4 @@
-export enum ArgumentTypeEnum {
+ enum ArgumentTypeEnum {
     FILE,
     BLOB,
     XML,

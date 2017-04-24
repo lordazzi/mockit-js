@@ -1,4 +1,4 @@
-export abstract class IOService {
+ abstract class IOService {
 
     public generateFileName() {
         let date = new Date();

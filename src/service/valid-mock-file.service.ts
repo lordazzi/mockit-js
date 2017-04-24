@@ -1,4 +1,4 @@
-export class ValidMockFileService {
+ class ValidMockFileService {
     private static instance: ValidMockFileService;
 
     public static getInstance(): ValidMockFileService {

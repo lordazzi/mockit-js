@@ -1,6 +1,6 @@
-import { IOTypeEnum } from "../enum/IOType.enum";
 
-export class ConfigModel {
+
+ class ConfigModel {
 
     /**
      * @property {String} cacheVarName

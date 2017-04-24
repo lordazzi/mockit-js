@@ -1,4 +1,4 @@
-export enum IOTypeEnum {
+ enum IOTypeEnum {
     STORAGE,
     STREAM
 }

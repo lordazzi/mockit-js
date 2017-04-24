@@ -1,18 +1,18 @@
-import { Main } from './../main';
-import { ValidMockFileService } from './valid-mock-file.service';
-import { MockFileInterface } from './../interface/mock-file.interface';
-import { ArgumentInterceptor } from './../interceptor/argument.interceptor';
-import { RequestDataInterface } from './../interface/request-data.interface';
-import { IOInterface } from './../interface/io.interface';
-import { HttpMethodType } from "../type/http-method.type";
-import { MockResponseType } from "../type/mock-response.type";
-import { HttpCodeEnum } from "../enum/http-code.enum";
-import { IOService } from "./io.service";
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Controls the storage data 
  */
-export class StorageIOService extends IOService implements IOInterface {
+ class StorageIOService extends IOService implements IOInterface {
 
     private static instance: StorageIOService;
 

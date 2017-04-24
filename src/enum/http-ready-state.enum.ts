@@ -1,4 +1,4 @@
-export enum HttpReadyStateEnum {
+ enum HttpReadyStateEnum {
     UNSENT = 0,
     OPENED = 1,
     HEADERS_RECEIVED = 2,

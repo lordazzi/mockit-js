@@ -1,12 +1,12 @@
-import { MockFileInterface } from './../interface/mock-file.interface';
-import { ArgumentInterceptor } from './../interceptor/argument.interceptor';
-import { RequestDataInterface } from './../interface/request-data.interface';
-import { IOInterface } from './../interface/io.interface';
-import { HttpMethodType } from "../type/http-method.type";
-import { MockResponseType } from "../type/mock-response.type";
-import { IOService } from "./io.service";
 
-export class StreamIOService extends IOService implements IOInterface {
+
+
+
+
+
+
+
+ class StreamIOService extends IOService implements IOInterface {
     private static instance: StreamIOService;
 
     public static getInstance(): StreamIOService {

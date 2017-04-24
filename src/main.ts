@@ -1,30 +1,23 @@
-import { MockFileInterface } from './interface/mock-file.interface';
-import { RequestSpyInterceptor } from './interceptor/request-spy.interceptor';
-import { StreamIOService } from './service/stream-io.service';
-import { StorageIOService } from './service/storage-io.service';
-import { IOInterface } from './interface/io.interface';
-import { ConfigModel } from './model/config.model';
-import { IOTypeEnum } from "./enum/IOType.enum";
-
-export namespace MockitJs {
-	export class NativeRequest extends XMLHttpRequest {
-
-	}
-
-	export class NativeFormData extends FormData {
-
-	}
-}
-
 declare namespace window {
-	export var XMLHttpRequest: any;
-	export var FormData: any;
+	 var XMLHttpRequest: any;
+	 var FormData: any;
 }
+
+ namespace MockitJs {
+	 class NativeRequest extends XMLHttpRequest {
+
+	}
+
+	 class NativeFormData extends FormData {
+
+	}
+}
+
 
 (<any>MockitJs).NativeRequest = XMLHttpRequest;
 (<any>MockitJs).NativeFormData = FormData;
 
-export class Main {
+ class Main {
 	private static instance: Main;
 
 	private hasNetworkConnection: boolean = true;
@@ -89,7 +82,7 @@ export class Main {
 	/**
 	 * @method stopHttp
 	 * Faz com que a página pare de ler as requisições
-	 * http e leia somente as informações do mock, é importante
+	 * http e leia somente as informações do mock, é 
 	 * lembrar que nada dentro da página será capaz de efetuar
 	 * requisições http enquanto a leitura por mock estiver
 	 * habilitada

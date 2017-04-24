@@ -1,11 +1,11 @@
-import { ArgumentInterceptor } from './argument.interceptor';
-import { HttpReadyStateEnum } from "../enum/http-ready-state.enum";
-import { MockitJs, Main } from './../main';
-import { ArgumentAcceptType } from "../type/argument-accept.type";
-import { HttpCodeEnum } from "../enum/http-code.enum";
-import { HttpMethodType } from "../type/http-method.type";
 
-export class RequestSpyInterceptor extends MockitJs.NativeRequest {
+
+
+
+
+
+
+ class RequestSpyInterceptor extends MockitJs.NativeRequest {
 
     private headers: { [header: string]: string };
 

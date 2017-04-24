@@ -1,4 +1,4 @@
-export interface MockFileInterface {
+ interface MockFileInterface {
     fileName: string;
     content: string;
 }

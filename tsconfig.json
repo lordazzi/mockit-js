@@ -1,16 +1,14 @@
 {
     "compileOnSave": false,
     "compilerOptions": {
-        "declaration": true,
+        "declaration": false,
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
-        "module": "system",
+        "module": "none",
         "target": "es5",
-        "outDir": "./dist/",
         "noImplicitAny": true,
         "preserveConstEnums": true,
-        "outFile": "dist/index.js",
-        "sourceMap": true
+        "sourceMap": false
     },
     "include": [
         "src/**/*"

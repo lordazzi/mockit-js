@@ -1,11 +1,11 @@
-import { ArgumentInterceptor } from './argument.interceptor';
-import { MockitJs, Main } from './../main';
-import { HttpReadyStateEnum } from "../enum/http-ready-state.enum";
-import { HttpCodeEnum } from "../enum/http-code.enum";
-import { ArgumentAcceptType } from "../type/argument-accept.type";
-import { HttpMethodType } from "../type/http-method.type";
 
-export class FakeRequestInterceptor extends MockitJs.NativeRequest {
+
+
+
+
+
+
+ class FakeRequestInterceptor extends MockitJs.NativeRequest {
     private async = true;
     private method: HttpMethodType = 'GET';
     private headers: { [header: string]: string } = {};

@@ -1,4 +1,4 @@
-export enum HttpCodeEnum {
+ enum HttpCodeEnum {
     NO_CONNECTION = 0,
     ACCEPTED = 202,
     BAD_GATEWAY = 502,

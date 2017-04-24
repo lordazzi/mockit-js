@@ -1,14 +1,14 @@
-import { ArgumentInterceptor } from './../interceptor/argument.interceptor';
-import { RequestDataInterface } from './request-data.interface';
-import { MockFileInterface } from './mock-file.interface';
-import { HttpCodeEnum } from "../enum/http-code.enum";
-import { HttpMethodType } from "../type/http-method.type";
-import { MockResponseType } from "../type/mock-response.type";
+
+
+
+
+
+
 
 /**
  * Interface for classes that will save the mock data
  */
-export interface IOInterface {
+ interface IOInterface {
 
     /**
      * Método responsável por definir o arquivo como aberto

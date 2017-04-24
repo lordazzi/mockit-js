@@ -1,7 +1,7 @@
-import { FormDataInterceptor } from './form-data.interceptor';
-import { Main } from './../main';
-import { ArgumentTypeEnum } from "../enum/argument-type.enum";
-import { ArgumentAcceptType } from "../type/argument-accept.type";
+
+
+
+
 
 /**
  * @class ArgumentInterceptor
@@ -9,7 +9,7 @@ import { ArgumentAcceptType } from "../type/argument-accept.type";
  * Represent every argument that can be send to the server,
  * including the http headers
  */
-export class ArgumentInterceptor {
+ class ArgumentInterceptor {
 
     private type: ArgumentTypeEnum = null;
 
